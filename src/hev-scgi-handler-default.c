@@ -158,20 +158,15 @@ static void hev_scgi_handler_default_response_write_header_handler(gpointer user
 	HevSCGITask *scgi_task = HEV_SCGI_TASK(user_data);
 	HevSCGIHandlerDefault *self = HEV_SCGI_HANDLER_DEFAULT(
 				hev_scgi_task_get_handler(scgi_task));
-	GObject *scgi_request = NULL;
 	GObject *scgi_response = NULL;
 	GOutputStream *output_stream = NULL;
-	GHashTable *req_hash_table = NULL;
 	GString *str = g_string_new(NULL);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	scgi_request = hev_scgi_task_get_request(HEV_SCGI_TASK(scgi_task));
 	scgi_response = hev_scgi_task_get_response(HEV_SCGI_TASK(scgi_task));
 
 	output_stream = hev_scgi_response_get_output_stream(HEV_SCGI_RESPONSE(scgi_response));
-
-	req_hash_table = hev_scgi_request_get_header_hash_table(HEV_SCGI_REQUEST(scgi_request));
 
 	g_object_set_data(G_OBJECT(scgi_task), "str", str);
 	g_string_printf(str, "<html>\r\n<head><title>404 Not Found</title></head>\r\n"

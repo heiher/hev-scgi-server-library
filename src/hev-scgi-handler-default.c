@@ -145,7 +145,7 @@ static void hev_scgi_handler_default_handle(HevSCGIHandler *self, GObject *scgi_
 	output_stream = hev_scgi_response_get_output_stream(HEV_SCGI_RESPONSE(scgi_response));
 	res_hash_table = hev_scgi_response_get_header_hash_table(HEV_SCGI_RESPONSE(scgi_response));
 
-	g_hash_table_insert(res_hash_table, "Status", g_strdup("200 OK"));
+	g_hash_table_insert(res_hash_table, "Status", g_strdup("404 Not Found"));
 	g_hash_table_insert(res_hash_table, "Content-Type", g_strdup("text/html"));
 	hev_scgi_response_write_header(HEV_SCGI_RESPONSE(scgi_response),
 				hev_scgi_handler_default_response_write_header_handler, scgi_task);
@@ -160,7 +160,6 @@ static void hev_scgi_handler_default_response_write_header_handler(gpointer user
 				hev_scgi_task_get_handler(scgi_task));
 	GObject *scgi_request = NULL;
 	GObject *scgi_response = NULL;
-	GInputStream *input_stream = NULL;
 	GOutputStream *output_stream = NULL;
 	GHashTable *req_hash_table = NULL;
 	GString *str = g_string_new(NULL);
@@ -170,21 +169,16 @@ static void hev_scgi_handler_default_response_write_header_handler(gpointer user
 	scgi_request = hev_scgi_task_get_request(HEV_SCGI_TASK(scgi_task));
 	scgi_response = hev_scgi_task_get_response(HEV_SCGI_TASK(scgi_task));
 
-	input_stream = hev_scgi_request_get_input_stream(HEV_SCGI_REQUEST(scgi_request));
 	output_stream = hev_scgi_response_get_output_stream(HEV_SCGI_RESPONSE(scgi_response));
 
 	req_hash_table = hev_scgi_request_get_header_hash_table(HEV_SCGI_REQUEST(scgi_request));
 
 	g_object_set_data(G_OBJECT(scgi_task), "str", str);
-	g_string_printf(str, "<strong>Handler:</strong> %s %s<br />"
-				"<strong>RequestURI:</strong> %s<br />"
-				"<strong>RemoteAddr:</strong> %s<br />"
-				"<strong>RemotePort:</strong> %s<br />",
+	g_string_printf(str, "<html>\r\n<head><title>404 Not Found</title></head>\r\n"
+				"<body bgcolor=\"white\">\r\n<center><h1>404 Not Found</h1></center>\r\n"
+				"<hr><center>%s/%s</center>\r\n</body>\r\n</html>",
 				hev_scgi_handler_get_name(HEV_SCGI_HANDLER(self)),
-				hev_scgi_handler_get_version(HEV_SCGI_HANDLER(self)),
-				g_hash_table_lookup(req_hash_table, "REQUEST_URI"),
-				g_hash_table_lookup(req_hash_table, "REMOTE_ADDR"),
-				g_hash_table_lookup(req_hash_table, "REMOTE_PORT"));
+				hev_scgi_handler_get_version(HEV_SCGI_HANDLER(self)));
 	g_output_stream_write_async(output_stream, str->str, str->len, 0, NULL,
 				hev_scgi_handler_default_output_stream_write_async_handler,
 				scgi_task);

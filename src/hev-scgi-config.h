@@ -41,6 +41,7 @@ GType hev_scgi_config_get_type(void);
 GObject * hev_scgi_config_new(void);
 
 GSocketAddress * hev_scgi_config_get_address(HevSCGIConfig *self);
+const gchar * hev_scgi_config_get_module_dir_path(HevSCGIConfig *self);
 
 G_END_DECLS
 

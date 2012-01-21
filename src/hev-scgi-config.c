@@ -158,3 +158,26 @@ GSocketAddress * hev_scgi_config_get_address(HevSCGIConfig *self)
 	return socket_address;
 }
 
+const gchar * hev_scgi_config_get_module_dir_path(HevSCGIConfig *self)
+{
+	HevSCGIConfigPrivate *priv = NULL;
+	gchar *path = NULL;
+	GError *error = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	g_return_val_if_fail(HEV_IS_SCGI_CONFIG(self), NULL);
+	priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
+
+	path = g_key_file_get_string(priv->key_file,
+				"Server", "ModuleDirPath", &error);
+	if(!path)
+	{
+		g_critical("%s:%d[%s]=>(%s)", __FILE__, __LINE__, __FUNCTION__,
+					error->message);
+		g_error_free(error);
+	}
+	
+	return path;
+}
+

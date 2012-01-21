@@ -14,6 +14,7 @@
 #include "hev-scgi-config.h"
 #include "hev-scgi-connection-manager.h"
 #include "hev-scgi-task-dispatcher.h"
+#include "hev-scgi-handler-module.h"
 #include "hev-scgi-handler-default.h"
 
 static gboolean socket_service_incoming_handler(GSocketService *service,
@@ -111,6 +112,9 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 	GSocketAddress *socket_address = NULL;
 	GError *error = NULL;
 	GObject *handler_default = NULL;
+	const gchar *module_dir_path = NULL;
+	const gchar *module_file_name = NULL;
+	GDir *module_dir = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
@@ -149,6 +153,44 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 	priv->scgi_task_dispatcher = hev_scgi_task_dispatcher_new();
 	if(!priv->scgi_task_dispatcher)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	/* Add handler-module */
+	module_dir_path = hev_scgi_config_get_module_dir_path(
+				HEV_SCGI_CONFIG(priv->scgi_config));
+	if(!module_dir_path)
+	{
+		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+		return;
+	}
+	module_dir = g_dir_open(module_dir_path, 0, &error);
+	if(!module_dir)
+	{
+		g_critical("%s:%d[%s]=>(%s)", __FILE__, __LINE__, __FUNCTION__,
+					error->message);
+		g_error_free(error);
+		return;
+	}
+
+	while(module_file_name = g_dir_read_name(module_dir))
+	{
+		if(g_str_has_prefix(module_file_name, "lib")
+					&& g_str_has_suffix(module_file_name, "so"))
+		{
+			gchar *module_file_path = NULL;
+			GObject *handler_module = NULL;
+
+			module_file_path = g_build_path(G_DIR_SEPARATOR_S,
+						module_dir_path, module_file_name);
+
+			handler_module = hev_scgi_handler_module_new(module_file_path);
+			hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),
+						handler_module);
+
+			g_free(module_file_path);
+		}
+	}
+
+	g_dir_close(module_dir);
 
 	/* Add handler-default */
 	handler_default = hev_scgi_handler_default_new();

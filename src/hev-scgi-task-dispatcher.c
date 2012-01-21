@@ -147,7 +147,7 @@ static void hev_scgi_task_dispatcher_dispatch(gpointer data,
 		{
 			hev_scgi_task_set_handler(HEV_SCGI_TASK(scgi_task), G_OBJECT(sl->data));
 			hev_scgi_handler_handle(HEV_SCGI_HANDLER(sl->data), scgi_task);
-			return;
+			break;
 		}
 	}
 

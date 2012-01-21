@@ -139,6 +139,8 @@ static void hev_scgi_handler_default_handle(HevSCGIHandler *self, GObject *scgi_
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
+	g_object_ref(scgi_task);
+
 	scgi_response = hev_scgi_task_get_response(HEV_SCGI_TASK(scgi_task));
 	output_stream = hev_scgi_response_get_output_stream(HEV_SCGI_RESPONSE(scgi_response));
 	res_hash_table = hev_scgi_response_get_header_hash_table(HEV_SCGI_RESPONSE(scgi_response));

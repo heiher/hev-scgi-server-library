@@ -179,8 +179,8 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 			gchar *module_file_path = NULL;
 			GObject *handler_module = NULL;
 
-			module_file_path = g_build_path(G_DIR_SEPARATOR_S,
-						module_dir_path, module_file_name);
+			module_file_path = g_module_build_path(module_dir_path,
+						module_file_name);
 
 			handler_module = hev_scgi_handler_module_new(module_file_path);
 			hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),

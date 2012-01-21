@@ -30,6 +30,8 @@ struct _HevSCGIHandlerModulePrivate
 {
 	gchar *path;
 	GModule *module;
+	gboolean (*init)(HevSCGIHandler *handler);
+	void (*finalize)(HevSCGIHandler *handler);
 };
 
 static void hev_scgi_handler_iface_init(HevSCGIHandlerInterface * iface);
@@ -93,6 +95,22 @@ static gboolean hev_scgi_handler_module_load(GTypeModule *obj)
 		return FALSE;
 	}
 
+	if(!g_module_symbol(priv->module, "hev_scgi_handler_module_init",
+					(gpointer)&priv->init))
+	{
+		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+		g_module_close(priv->module);
+		return FALSE;
+	}
+
+	if(!g_module_symbol(priv->module, "hev_scgi_handler_module_finalize",
+					(gpointer)&priv->finalize))
+	{
+		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+		g_module_close(priv->module);
+		return FALSE;
+	}
+
 	if(!g_module_symbol(priv->module, "hev_scgi_handler_module_get_name",
 					(gpointer)&iface->get_name))
 	{
@@ -125,7 +143,7 @@ static gboolean hev_scgi_handler_module_load(GTypeModule *obj)
 		return FALSE;
 	}
 
-	return TRUE;
+	return priv->init(HEV_SCGI_HANDLER(self));
 }
 
 static void hev_scgi_handler_module_unload(GTypeModule *obj)
@@ -136,10 +154,14 @@ static void hev_scgi_handler_module_unload(GTypeModule *obj)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
+	priv->finalize(HEV_SCGI_HANDLER(self));
+
 	iface->get_name = NULL;
 	iface->get_version = NULL;
 	iface->get_pattern = NULL;
 	iface->handle = NULL;
+	priv->init = NULL;
+	priv->finalize = NULL;
 
 	g_module_close(priv->module);
 }

@@ -115,6 +115,7 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 	const gchar *module_dir_path = NULL;
 	const gchar *module_file_name = NULL;
 	GDir *module_dir = NULL;
+	GSList *module_slist = NULL, *module_sl = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
@@ -177,20 +178,26 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 					&& g_str_has_suffix(module_file_name, "so"))
 		{
 			gchar *module_file_path = NULL;
-			GObject *handler_module = NULL;
 
 			module_file_path = g_module_build_path(module_dir_path,
 						module_file_name);
-
-			handler_module = hev_scgi_handler_module_new(module_file_path);
-			hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),
-						handler_module);
-
-			g_free(module_file_path);
+			module_slist = g_slist_append(module_slist, module_file_path);
 		}
 	}
 
+	module_slist = g_slist_sort(module_slist, (GCompareFunc)g_strcmp0);
+
+	for(module_sl=module_slist; module_sl; module_sl=g_slist_next(module_sl))
+	{
+		GObject *handler_module = NULL;
+
+		handler_module = hev_scgi_handler_module_new(module_sl->data);
+		hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),
+					handler_module);
+	}
+
 	g_dir_close(module_dir);
+	g_slist_free_full(module_slist, g_free);
 
 	/* Add handler-default */
 	handler_default = hev_scgi_handler_default_new();

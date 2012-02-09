@@ -72,6 +72,8 @@ static GObject * hev_scgi_handler_default_constructor(GType type, guint n, GObje
 static void hev_scgi_handler_default_constructed(GObject * obj)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	G_OBJECT_CLASS(hev_scgi_handler_default_parent_class)->constructed(obj);
 }
 
 static void hev_scgi_handler_default_class_init(HevSCGIHandlerDefaultClass * klass)

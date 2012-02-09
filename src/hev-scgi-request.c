@@ -97,6 +97,8 @@ static GObject * hev_scgi_request_constructor(GType type, guint n, GObjectConstr
 static void hev_scgi_request_constructed(GObject * obj)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	G_OBJECT_CLASS(hev_scgi_request_parent_class)->constructed(obj);
 }
 
 static void hev_scgi_request_class_init(HevSCGIRequestClass * klass)

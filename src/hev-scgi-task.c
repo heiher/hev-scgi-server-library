@@ -153,6 +153,18 @@ void hev_scgi_task_set_socket_connection(HevSCGITask *self,
 	priv->connection = g_object_ref(connection);
 }
 
+GObject * hev_scgi_task_get_socket_connection(HevSCGITask *self)
+{
+	HevSCGITaskPrivate *priv = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	g_return_if_fail(HEV_IS_SCGI_TASK(self));
+	priv = HEV_SCGI_TASK_GET_PRIVATE(self);
+
+	return priv->connection;
+}
+
 void hev_scgi_task_set_handler(HevSCGITask *self, GObject *handler)
 {
 	HevSCGITaskPrivate *priv = NULL;

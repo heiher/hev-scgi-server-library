@@ -114,9 +114,7 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 	GSocketAddress *socket_address = NULL;
 	GError *error = NULL;
 	GObject *handler_default = NULL;
-	const gchar *module_dir_path = NULL;
-	const gchar *module_file_name = NULL;
-	GDir *module_dir = NULL;
+	gchar *module_dir_path = NULL;
 	GSList *module_slist = NULL, *module_sl = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -165,40 +163,37 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 		return;
 	}
-	module_dir = g_dir_open(module_dir_path, 0, &error);
-	if(!module_dir)
-	{
-		g_critical("%s:%d[%s]=>(%s)", __FILE__, __LINE__, __FUNCTION__,
-					error->message);
-		g_error_free(error);
-		return;
-	}
 
-	while(module_file_name = g_dir_read_name(module_dir))
-	{
-		if(g_str_has_prefix(module_file_name, "lib")
-					&& g_str_has_suffix(module_file_name, "so"))
-		{
-			gchar *module_file_path = NULL;
-
-			module_file_path = g_module_build_path(module_dir_path,
-						module_file_name);
-			module_slist = g_slist_append(module_slist, module_file_path);
-		}
-	}
-
-	module_slist = g_slist_sort(module_slist, (GCompareFunc)g_strcmp0);
-
+	module_slist = hev_scgi_config_get_modules(HEV_SCGI_CONFIG(priv->scgi_config));
 	for(module_sl=module_slist; module_sl; module_sl=g_slist_next(module_sl))
 	{
 		GObject *handler_module = NULL;
+		GKeyFile *module_config = NULL;
+		gchar *module_alias = NULL;
+		gchar *module_pattern = NULL;
+		gchar *module_file_name = NULL;
+		gchar *module_file_path = NULL;
 
-		handler_module = hev_scgi_handler_module_new(module_sl->data);
+		module_config = hev_scgi_config_get_module_config(HEV_SCGI_CONFIG(priv->scgi_config),
+					(const gchar *)module_sl->data);
+
+		module_alias = g_key_file_get_string(module_config, "Module", "Alias", NULL);
+		module_pattern = g_key_file_get_string(module_config, "Module", "Pattern", NULL);
+		module_file_name = g_key_file_get_string(module_config, "Module", "FileName", NULL);
+		module_file_path = g_build_path(G_DIR_SEPARATOR_S, module_dir_path, module_file_name, NULL);
+
+		handler_module = hev_scgi_handler_module_new(module_alias, module_pattern,
+					module_file_path, module_config);
 		hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),
 					handler_module);
+
+		g_free(module_alias);
+		g_free(module_pattern);
+		g_free(module_file_name);
+		g_free(module_file_path);
 	}
 
-	g_dir_close(module_dir);
+	g_free(module_dir_path);
 	g_slist_free_full(module_slist, g_free);
 
 	/* Add handler-default */

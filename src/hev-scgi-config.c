@@ -10,7 +10,8 @@
 
 #include "hev-scgi-config.h"
 
-#define HEV_SCGI_CONFIG_FILE_NAME			"main.conf"
+#define HEV_SCGI_CONFIG_FILE_NAME_MAIN				"main.conf"
+#define HEV_SCGI_CONFIG_FILE_NAME_MODULES			"modules.conf"
 
 #define HEV_SCGI_CONFIG_GET_PRIVATE(obj)	(G_TYPE_INSTANCE_GET_PRIVATE((obj), HEV_TYPE_SCGI_CONFIG, HevSCGIConfigPrivate))
 
@@ -18,7 +19,8 @@ typedef struct _HevSCGIConfigPrivate HevSCGIConfigPrivate;
 
 struct _HevSCGIConfigPrivate
 {
-	GKeyFile *key_file;
+	GKeyFile *key_file_main;
+	GKeyFile *key_file_modules;
 };
 
 G_DEFINE_TYPE(HevSCGIConfig, hev_scgi_config, G_TYPE_OBJECT);
@@ -40,10 +42,16 @@ static void hev_scgi_config_finalize(GObject * obj)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	if(priv->key_file)
+	if(priv->key_file_modules)
 	{
-		g_key_file_free(priv->key_file);
-		priv->key_file = NULL;
+		g_key_file_free(priv->key_file_modules);
+		priv->key_file_modules = NULL;
+	}
+
+	if(priv->key_file_main)
+	{
+		g_key_file_free(priv->key_file_main);
+		priv->key_file_main = NULL;
 	}
 
 	G_OBJECT_CLASS(hev_scgi_config_parent_class)->finalize(obj);
@@ -84,14 +92,33 @@ static void hev_scgi_config_init(HevSCGIConfig * self)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	priv->key_file = g_key_file_new();
-	if(!priv->key_file)
+	/* main */
+	priv->key_file_main = g_key_file_new();
+	if(!priv->key_file_main)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	config_file_path = g_build_path(G_DIR_SEPARATOR_S,
-				"conf", HEV_SCGI_CONFIG_FILE_NAME, NULL);
+				"conf", HEV_SCGI_CONFIG_FILE_NAME_MAIN, NULL);
 	g_debug("Config File Path : %s", config_file_path);
-	if(!g_key_file_load_from_file(priv->key_file, config_file_path,
+	if(!g_key_file_load_from_file(priv->key_file_main, config_file_path,
+					G_KEY_FILE_NONE, &error))
+	{
+		g_critical("%s:%d[%s]=>(%s)", __FILE__, __LINE__, __FUNCTION__,
+					error->message);
+		g_error_free(error);
+	}
+
+	g_free(config_file_path);
+
+	/* modules */
+	priv->key_file_modules = g_key_file_new();
+	if(!priv->key_file_modules)
+	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	config_file_path = g_build_path(G_DIR_SEPARATOR_S,
+				"conf", HEV_SCGI_CONFIG_FILE_NAME_MODULES, NULL);
+	g_debug("Config File Path : %s", config_file_path);
+	if(!g_key_file_load_from_file(priv->key_file_modules, config_file_path,
 					G_KEY_FILE_NONE, &error))
 	{
 		g_critical("%s:%d[%s]=>(%s)", __FILE__, __LINE__, __FUNCTION__,
@@ -120,7 +147,7 @@ GSocketAddress * hev_scgi_config_get_address(HevSCGIConfig *self)
 	g_return_val_if_fail(HEV_IS_SCGI_CONFIG(self), NULL);
 	priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 
-	address = g_key_file_get_string(priv->key_file,
+	address = g_key_file_get_string(priv->key_file_main,
 				"Server", "Address", &error);
 	if(!address)
 	{
@@ -160,7 +187,7 @@ GSocketAddress * hev_scgi_config_get_address(HevSCGIConfig *self)
 	return socket_address;
 }
 
-const gchar * hev_scgi_config_get_module_dir_path(HevSCGIConfig *self)
+gchar * hev_scgi_config_get_module_dir_path(HevSCGIConfig *self)
 {
 	HevSCGIConfigPrivate *priv = NULL;
 	gchar *path = NULL;
@@ -171,7 +198,7 @@ const gchar * hev_scgi_config_get_module_dir_path(HevSCGIConfig *self)
 	g_return_val_if_fail(HEV_IS_SCGI_CONFIG(self), NULL);
 	priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 
-	path = g_key_file_get_string(priv->key_file,
+	path = g_key_file_get_string(priv->key_file_main,
 				"Server", "ModuleDirPath", &error);
 	if(!path)
 	{
@@ -181,5 +208,71 @@ const gchar * hev_scgi_config_get_module_dir_path(HevSCGIConfig *self)
 	}
 	
 	return path;
+}
+
+GSList * hev_scgi_config_get_modules(HevSCGIConfig *self)
+{
+	HevSCGIConfigPrivate *priv = NULL;
+	GSList *slist = NULL;
+	gchar **groups = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	g_return_val_if_fail(HEV_IS_SCGI_CONFIG(self), NULL);
+	priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
+
+	groups = g_key_file_get_groups(priv->key_file_modules, NULL);
+	if(groups)
+	{
+		gsize i = 0;
+
+		for(i=0; groups[i]; i++)
+		  slist = g_slist_append(slist, g_strdup(groups[i]));
+
+		g_strfreev(groups);
+	}
+	slist = g_slist_sort(slist, (GCompareFunc)g_strcmp0);
+
+	return slist;
+}
+
+GKeyFile * hev_scgi_config_get_module_config(HevSCGIConfig *self,
+			const gchar *id)
+{
+	HevSCGIConfigPrivate *priv = NULL;
+	GKeyFile *key_file = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	g_return_val_if_fail(HEV_IS_SCGI_CONFIG(self), NULL);
+	g_return_val_if_fail(id, NULL);
+	priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
+
+	key_file = g_key_file_new();
+	if(key_file)
+	{
+		gchar **keys = NULL;
+
+		keys = g_key_file_get_keys(priv->key_file_modules, id, NULL, NULL);
+		if(keys)
+		{
+			gsize i = 0;
+
+			for(i=0; keys[i]; i++)
+			{
+				gchar *value = g_key_file_get_value(priv->key_file_modules,
+							id, keys[i], NULL);
+				if(value)
+				{
+					g_key_file_set_value(key_file, "Module", keys[i], value);
+					g_free(value);
+				}
+			}
+
+			g_strfreev(keys);
+		}
+	}
+
+	return key_file;
 }
 

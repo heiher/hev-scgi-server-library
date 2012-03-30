@@ -16,6 +16,8 @@
 enum
 {
 	PROP_0,
+	PROP_ALIAS,
+	PROP_PATTERN,
 	PROP_PATH,
 	N_PROPERTIES
 };
@@ -28,6 +30,8 @@ typedef struct _HevSCGIHandlerModulePrivate HevSCGIHandlerModulePrivate;
 
 struct _HevSCGIHandlerModulePrivate
 {
+	gchar *alias;
+	gchar *pattern;
 	gchar *path;
 	GModule *module;
 	gboolean (*init)(HevSCGIHandler *handler);
@@ -38,6 +42,9 @@ static void hev_scgi_handler_iface_init(HevSCGIHandlerInterface * iface);
 
 G_DEFINE_TYPE_WITH_CODE(HevSCGIHandlerModule, hev_scgi_handler_module, G_TYPE_TYPE_MODULE,
 			G_IMPLEMENT_INTERFACE(HEV_TYPE_SCGI_HANDLER, hev_scgi_handler_iface_init));
+
+static const gchar * hev_scgi_handler_module_get_alias(HevSCGIHandler *handler);
+static const gchar * hev_scgi_handler_module_get_pattern(HevSCGIHandler *handler);
 
 static void hev_scgi_handler_module_dispose(GObject * obj)
 {
@@ -58,6 +65,16 @@ static void hev_scgi_handler_module_finalize(GObject * obj)
 
 	g_type_module_unuse(G_TYPE_MODULE(obj));
 
+	if(priv->alias)
+	{
+		g_free(priv->alias);
+		priv->alias = NULL;
+	}
+	if(priv->pattern)
+	{
+		g_free(priv->pattern);
+		priv->pattern = NULL;
+	}
 	if(priv->path)
 	{
 		g_free(priv->path);
@@ -121,6 +138,11 @@ static gboolean hev_scgi_handler_module_load(GTypeModule *obj)
 		return FALSE;
 	}
 
+	if(priv->alias)
+	  iface->get_alias = hev_scgi_handler_module_get_alias;
+	else
+	  iface->get_alias = iface->get_name;
+
 	if(!g_module_symbol(priv->module, "hev_scgi_handler_module_get_version",
 					(gpointer)&iface->get_version))
 	{
@@ -129,12 +151,17 @@ static gboolean hev_scgi_handler_module_load(GTypeModule *obj)
 		return FALSE;
 	}
 
-	if(!g_module_symbol(priv->module, "hev_scgi_handler_module_get_pattern",
-					(gpointer)&iface->get_pattern))
+	if(priv->pattern)
+	  iface->get_pattern = hev_scgi_handler_module_get_pattern;
+	else
 	{
-		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-		g_module_close(priv->module);
-		return FALSE;
+		if(!g_module_symbol(priv->module, "hev_scgi_handler_module_get_pattern",
+						(gpointer)&iface->get_pattern))
+		{
+			g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+			g_module_close(priv->module);
+			return FALSE;
+		}
 	}
 
 	if(!g_module_symbol(priv->module, "hev_scgi_handler_module_handle",
@@ -178,6 +205,12 @@ static void hev_scgi_handler_module_set_property(GObject *obj,
 
 	switch(prop_id)
 	{
+	case PROP_ALIAS:
+		priv->alias = g_value_dup_string(value);
+		break;
+	case PROP_PATTERN:
+		priv->pattern = g_value_dup_string(value);
+		break;
 	case PROP_PATH:
 		priv->path = g_value_dup_string(value);
 		break;
@@ -197,6 +230,12 @@ static void hev_scgi_handler_module_get_property(GObject *obj,
 
 	switch(prop_id)
 	{
+	case PROP_ALIAS: 
+		g_value_set_string(value, priv->alias);
+		break;
+	case PROP_PATTERN: 
+		g_value_set_string(value, priv->pattern);
+		break;
 	case PROP_PATH: 
 		g_value_set_string(value, priv->path);
 		break;
@@ -223,6 +262,18 @@ static void hev_scgi_handler_module_class_init(HevSCGIHandlerModuleClass * klass
 	type_module_class->load = hev_scgi_handler_module_load;
 	type_module_class->unload = hev_scgi_handler_module_unload;
 
+	hev_scgi_handler_module_properties[PROP_ALIAS] =
+		g_param_spec_string ("alias",
+					"Alias",
+					"The module alias",
+					NULL,
+					G_PARAM_READWRITE |	G_PARAM_CONSTRUCT_ONLY);
+	hev_scgi_handler_module_properties[PROP_PATTERN] =
+		g_param_spec_string ("pattern",
+					"Pattern",
+					"The module pattern",
+					NULL,
+					G_PARAM_READWRITE |	G_PARAM_CONSTRUCT_ONLY);
 	hev_scgi_handler_module_properties[PROP_PATH] =
 		g_param_spec_string ("path",
 					"Path",
@@ -246,6 +297,8 @@ static void hev_scgi_handler_module_init(HevSCGIHandlerModule * self)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
+	priv->alias = NULL;
+	priv->pattern = NULL;
 	priv->path = NULL;
 }
 
@@ -255,10 +308,32 @@ static void hev_scgi_handler_iface_init(HevSCGIHandlerInterface * iface)
 }
 
 
-GObject * hev_scgi_handler_module_new(const gchar *path)
+GObject * hev_scgi_handler_module_new(const gchar *alias,
+			const gchar *pattern, const gchar *path)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	return g_object_new(HEV_TYPE_SCGI_HANDLER_MODULE,
+				"alias", alias, "pattern", pattern,
 				"path", path, NULL);
+}
+
+static const gchar * hev_scgi_handler_module_get_alias(HevSCGIHandler *handler)
+{
+	HevSCGIHandlerModule *self = HEV_SCGI_HANDLER_MODULE(handler);
+	HevSCGIHandlerModulePrivate * priv = HEV_SCGI_HANDLER_MODULE_GET_PRIVATE(self);
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	return priv->alias;
+}
+
+static const gchar * hev_scgi_handler_module_get_pattern(HevSCGIHandler *handler)
+{
+	HevSCGIHandlerModule *self = HEV_SCGI_HANDLER_MODULE(handler);
+	HevSCGIHandlerModulePrivate * priv = HEV_SCGI_HANDLER_MODULE_GET_PRIVATE(self);
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	return priv->pattern;
 }
 

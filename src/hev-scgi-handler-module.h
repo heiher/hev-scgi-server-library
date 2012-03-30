@@ -37,7 +37,8 @@ struct _HevSCGIHandlerModuleClass
 
 GType hev_scgi_handler_module_get_type(void);
 
-GObject * hev_scgi_handler_module_new(const gchar *path);
+GObject * hev_scgi_handler_module_new(const gchar *alias,
+			const gchar *pattern, const gchar *path);
 
 G_END_DECLS
 

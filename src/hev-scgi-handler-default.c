@@ -94,6 +94,7 @@ static void hev_scgi_handler_iface_init(HevSCGIHandlerInterface * iface)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
+	iface->get_alias = hev_scgi_handler_default_get_name;
 	iface->get_name = hev_scgi_handler_default_get_name;
 	iface->get_version = hev_scgi_handler_default_get_version;
 	iface->get_pattern = hev_scgi_handler_default_get_pattern;

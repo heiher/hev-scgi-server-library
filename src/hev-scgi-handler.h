@@ -30,6 +30,7 @@ struct _HevSCGIHandlerInterface
 {
 	GTypeInterface parent_scgi_handler;
 
+	const gchar * (*get_alias)(HevSCGIHandler *self);
 	const gchar * (*get_name)(HevSCGIHandler *self);
 	const gchar * (*get_version)(HevSCGIHandler *self);
 	const gchar * (*get_pattern)(HevSCGIHandler *self);
@@ -38,6 +39,7 @@ struct _HevSCGIHandlerInterface
 
 GType hev_scgi_handler_get_type(void);
 
+const gchar * hev_scgi_handler_get_alias(HevSCGIHandler *self);
 const gchar * hev_scgi_handler_get_name(HevSCGIHandler *self);
 const gchar * hev_scgi_handler_get_version(HevSCGIHandler *self);
 const gchar * hev_scgi_handler_get_pattern(HevSCGIHandler *self);

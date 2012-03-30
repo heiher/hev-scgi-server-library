@@ -17,6 +17,19 @@ static void hev_scgi_handler_default_init(HevSCGIHandlerInterface * klass)
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 }
 
+const gchar * hev_scgi_handler_get_alias(HevSCGIHandler *self)
+{
+	HevSCGIHandlerInterface *iface = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	g_return_val_if_fail(HEV_IS_SCGI_HANDLER(self), NULL);
+	iface = HEV_SCGI_HANDLER_GET_INTERFACE(self);
+	g_return_val_if_fail(iface->get_alias, NULL);
+
+	return iface->get_alias(self);
+}
+
 const gchar * hev_scgi_handler_get_name(HevSCGIHandler *self)
 {
 	HevSCGIHandlerInterface *iface = NULL;

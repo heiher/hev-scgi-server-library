@@ -23,9 +23,9 @@ const gchar * hev_scgi_handler_get_name(HevSCGIHandler *self)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_if_fail(HEV_IS_SCGI_HANDLER(self));
+	g_return_val_if_fail(HEV_IS_SCGI_HANDLER(self), NULL);
 	iface = HEV_SCGI_HANDLER_GET_INTERFACE(self);
-	g_return_if_fail(iface->get_name);
+	g_return_val_if_fail(iface->get_name, NULL);
 
 	return iface->get_name(self);
 }
@@ -36,9 +36,9 @@ const gchar * hev_scgi_handler_get_version(HevSCGIHandler *self)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_if_fail(HEV_IS_SCGI_HANDLER(self));
+	g_return_val_if_fail(HEV_IS_SCGI_HANDLER(self), NULL);
 	iface = HEV_SCGI_HANDLER_GET_INTERFACE(self);
-	g_return_if_fail(iface->get_version);
+	g_return_val_if_fail(iface->get_version, NULL);
 
 	return iface->get_version(self);
 }
@@ -49,9 +49,9 @@ const gchar * hev_scgi_handler_get_pattern(HevSCGIHandler *self)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_if_fail(HEV_IS_SCGI_HANDLER(self));
+	g_return_val_if_fail(HEV_IS_SCGI_HANDLER(self), NULL);
 	iface = HEV_SCGI_HANDLER_GET_INTERFACE(self);
-	g_return_if_fail(iface->get_pattern);
+	g_return_val_if_fail(iface->get_pattern, NULL);
 
 	return iface->get_pattern(self);
 }

@@ -34,6 +34,7 @@ struct _HevSCGIHandlerInterface
 	const gchar * (*get_name)(HevSCGIHandler *self);
 	const gchar * (*get_version)(HevSCGIHandler *self);
 	const gchar * (*get_pattern)(HevSCGIHandler *self);
+	GKeyFile * (*get_config)(HevSCGIHandler *self);
 	void (*handle)(HevSCGIHandler *self, GObject *scgi_task);
 };
 
@@ -43,6 +44,7 @@ const gchar * hev_scgi_handler_get_alias(HevSCGIHandler *self);
 const gchar * hev_scgi_handler_get_name(HevSCGIHandler *self);
 const gchar * hev_scgi_handler_get_version(HevSCGIHandler *self);
 const gchar * hev_scgi_handler_get_pattern(HevSCGIHandler *self);
+GKeyFile * hev_scgi_handler_get_config(HevSCGIHandler *self);
 void hev_scgi_handler_handle(HevSCGIHandler *self, GObject *scgi_task);
 
 G_END_DECLS

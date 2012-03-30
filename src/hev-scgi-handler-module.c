@@ -172,6 +172,8 @@ static gboolean hev_scgi_handler_module_load(GTypeModule *obj)
 		}
 	}
 
+	iface->get_config = hev_scgi_handler_module_get_config;
+
 	if(!g_module_symbol(priv->module, "hev_scgi_handler_module_handle",
 					(gpointer)&iface->handle))
 	{

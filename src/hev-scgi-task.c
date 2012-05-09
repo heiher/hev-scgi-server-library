@@ -106,12 +106,31 @@ static void hev_scgi_task_init(HevSCGITask * self)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 }
 
+/**
+ * hev_scgi_task_new
+ *
+ * Creates a task.
+ *
+ * Returns: (type HevSCGITask): A #HevSCGITask.
+ *
+ * Since: 0.0.1
+ */
 GObject * hev_scgi_task_new(void)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	return g_object_new(HEV_TYPE_SCGI_TASK, NULL);
 }
 
+/**
+ * hev_scgi_task_get_request
+ * @self: A #HevSCGITask
+ *
+ * Gets the request @self is for.
+ *
+ * Returns: (transfer none) (type HevSCGIRequest): A #HevSCGIRequest owned by @self. Do not free.
+ *
+ * Since: 0.0.1
+ */
 GObject * hev_scgi_task_get_request(HevSCGITask *self)
 {
 	HevSCGITaskPrivate *priv = NULL;
@@ -124,6 +143,16 @@ GObject * hev_scgi_task_get_request(HevSCGITask *self)
 	return priv->scgi_request;
 }
 
+/**
+ * hev_scgi_task_get_response
+ * @self: A #HevSCGITask
+ *
+ * Gets the response @self is for.
+ *
+ * Returns: (transfer none) (type HevSCGIResponse): A #HevSCGIResponse owned by @self. Do not free.
+ *
+ * Since: 0.0.1
+ */
 GObject * hev_scgi_task_get_response(HevSCGITask *self)
 {
 	HevSCGITaskPrivate *priv = NULL;
@@ -136,6 +165,15 @@ GObject * hev_scgi_task_get_response(HevSCGITask *self)
 	return priv->scgi_response;
 }
 
+/**
+ * hev_scgi_task_set_socket_connection
+ * @self: A #HevSCGITask
+ * @connection: (type GSocketConnection): A #GSocketConnection.
+ *
+ * Sets the socket connection @self is for.
+ *
+ * Since: 0.0.1
+ */
 void hev_scgi_task_set_socket_connection(HevSCGITask *self,
 			GObject *connection)
 {
@@ -153,6 +191,16 @@ void hev_scgi_task_set_socket_connection(HevSCGITask *self,
 	priv->connection = g_object_ref(connection);
 }
 
+/**
+ * hev_scgi_task_get_socket_connection
+ * @self: A #HevSCGITask
+ *
+ * Gets the socket connection @self is for.
+ *
+ * Returns: (transfer none) (type GSocketConnection): A #GSocketConnection owned by @self. Do not free.
+ *
+ * Since: 0.0.1
+ */
 GObject * hev_scgi_task_get_socket_connection(HevSCGITask *self)
 {
 	HevSCGITaskPrivate *priv = NULL;
@@ -165,6 +213,15 @@ GObject * hev_scgi_task_get_socket_connection(HevSCGITask *self)
 	return priv->connection;
 }
 
+/**
+ * hev_scgi_task_set_handler
+ * @self: A #HevSCGITask
+ * @handler: (type HevSCGIHandler): A #HevSCGIHandler.
+ *
+ * Sets the handler @self is for.
+ *
+ * Since: 0.0.1
+ */
 void hev_scgi_task_set_handler(HevSCGITask *self, GObject *handler)
 {
 	HevSCGITaskPrivate *priv = NULL;
@@ -178,6 +235,16 @@ void hev_scgi_task_set_handler(HevSCGITask *self, GObject *handler)
 	priv->handler = handler;
 }
 
+/**
+ * hev_scgi_task_get_handler
+ * @self: A #HevSCGITask
+ *
+ * Gets the handler @self is for.
+ *
+ * Returns: (transfer none) (type HevSCGIHandler): A #HevSCGIHandler owned by @self. Do not free.
+ *
+ * Since: 0.0.1
+ */
 GObject * hev_scgi_task_get_handler(HevSCGITask *self)
 {
 	HevSCGITaskPrivate *priv = NULL;

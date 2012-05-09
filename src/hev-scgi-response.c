@@ -117,19 +117,37 @@ static void hev_scgi_response_init(HevSCGIResponse * self)
 	priv->header_status = HEADER_STATUS_UNWRITE;
 
 	priv->header_hash_table = g_hash_table_new_full(g_str_hash,
-				g_str_equal, NULL, g_free);
+				g_str_equal, g_free, g_free);
 	if(!priv->header_hash_table)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	priv->last_write = FALSE;
 }
 
+/**
+ * hev_scgi_response_new
+ *
+ * Creates a response.
+ *
+ * Returns: (type HevSCGIResponse): A #HevSCGIResponse.
+ *
+ * Since: 0.0.1
+ */
 GObject * hev_scgi_response_new(void)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	return g_object_new(HEV_TYPE_SCGI_RESPONSE, NULL);
 }
 
+/**
+ * hev_scgi_response_set_output_stream
+ * @self: A #HevSCGIResponse
+ * @output_stream: A #GOutputStream
+ *
+ * Sets the output stream @self is for.
+ *
+ * Since: 0.0.1
+ */
 void hev_scgi_response_set_output_stream(HevSCGIResponse *self,
 			GOutputStream *output_stream)
 {
@@ -147,6 +165,16 @@ void hev_scgi_response_set_output_stream(HevSCGIResponse *self,
 	priv->output_stream = g_object_ref(output_stream);
 }
 
+/**
+ * hev_scgi_response_get_output_stream
+ * @self: A #HevSCGIResponse
+ *
+ * Gets the output stream @self is for.
+ *
+ * Returns: (transfer none) (type GOutputStream): A #GOutputStream owned by @self. Do not free.
+ *
+ * Since: 0.0.1
+ */
 GOutputStream * hev_scgi_response_get_output_stream(HevSCGIResponse *self)
 {
 	HevSCGIResponsePrivate *priv = NULL;
@@ -159,6 +187,16 @@ GOutputStream * hev_scgi_response_get_output_stream(HevSCGIResponse *self)
 	return priv->output_stream;
 }
 
+/**
+ * hev_scgi_response_write_header
+ * @self: A #HevSCGIResponse
+ * @callback: (scope call): Callback function to invoke when write is ready.
+ * @user_data: (closure): User data to pass to @callback.
+ *
+ * Writes header #HevSCGIResponse is for.
+ *
+ * Since: 0.0.1
+ */
 void hev_scgi_response_write_header(HevSCGIResponse *self,
 			GFunc callback, gpointer user_data)
 {
@@ -261,6 +299,16 @@ static void hev_scgi_response_output_stream_close_async_handler(GObject *source_
 	g_object_unref(source_object);
 }
 
+/**
+ * hev_scgi_response_get_header_hash_table
+ * @self: A #HevSCGIResponse
+ *
+ * Gets the header hash table @self is for.
+ *
+ * Returns: (transfer none) (element-type utf8 utf8): A #GHashTable owned by @self. Do not free.
+ *
+ * Since: 0.0.1
+ */
 GHashTable * hev_scgi_response_get_header_hash_table(HevSCGIResponse *self)
 {
 	HevSCGIResponsePrivate *priv = NULL;

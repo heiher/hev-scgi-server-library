@@ -148,8 +148,8 @@ static void hev_scgi_handler_default_handle(HevSCGIHandler *self, GObject *scgi_
 	output_stream = hev_scgi_response_get_output_stream(HEV_SCGI_RESPONSE(scgi_response));
 	res_hash_table = hev_scgi_response_get_header_hash_table(HEV_SCGI_RESPONSE(scgi_response));
 
-	g_hash_table_insert(res_hash_table, "Status", g_strdup("404 Not Found"));
-	g_hash_table_insert(res_hash_table, "Content-Type", g_strdup("text/html"));
+	g_hash_table_insert(res_hash_table, g_strdup("Status"), g_strdup("404 Not Found"));
+	g_hash_table_insert(res_hash_table, g_strdup("Content-Type"), g_strdup("text/html"));
 	hev_scgi_response_write_header(HEV_SCGI_RESPONSE(scgi_response),
 				hev_scgi_handler_default_response_write_header_handler, scgi_task);
 

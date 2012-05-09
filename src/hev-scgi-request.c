@@ -137,12 +137,30 @@ static void hev_scgi_request_init(HevSCGIRequest * self)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 }
 
+/**
+ * hev_scgi_request_new
+ *
+ * Creates a request.
+ *
+ * Returns: (type HevSCGIRequest): A #HevSCGIRequest.
+ *
+ * Since: 0.0.1
+ */
 GObject * hev_scgi_request_new(void)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	return g_object_new(HEV_TYPE_SCGI_REQUEST, NULL);
 }
 
+/**
+ * hev_scgi_request_get_input_stream
+ * @self: A #HevSCGIRequest
+ * @input_stream: A #GInputStream
+ *
+ * Sets the input stream @self is for.
+ *
+ * Since: 0.0.1
+ */
 void hev_scgi_request_set_input_stream(HevSCGIRequest *self,
 			GInputStream *input_stream)
 {
@@ -160,6 +178,16 @@ void hev_scgi_request_set_input_stream(HevSCGIRequest *self,
 	priv->input_stream = g_object_ref(input_stream);
 }
 
+/**
+ * hev_scgi_request_get_input_stream
+ * @self: A #HevSCGIRequest
+ *
+ * Gets the input stream @self is for.
+ *
+ * Returns: (transfer none) (type GInputStream): A #GInputStream owned by @self. Do not free.
+ *
+ * Since: 0.0.1
+ */
 GInputStream * hev_scgi_request_get_input_stream(HevSCGIRequest *self)
 {
 	HevSCGIRequestPrivate *priv = NULL;
@@ -172,6 +200,16 @@ GInputStream * hev_scgi_request_get_input_stream(HevSCGIRequest *self)
 	return priv->input_stream;
 }
 
+/**
+ * hev_scgi_request_read_header
+ * @self: A #HevSCGIRequest
+ * @callback: (scope call): 
+ * @user_data: (closure): User data to pass to @callback.
+ *
+ * Writes header #HevSCGIResponse is for.
+ *
+ * Since: 0.0.1
+ */
 void hev_scgi_request_read_header(HevSCGIRequest *self,
 			GFunc callback, gpointer user_data)
 {
@@ -368,6 +406,16 @@ static void hev_scgi_request_parse_header(HevSCGIRequest *self)
 	}
 }
 
+/**
+ * hev_scgi_request_get_header_hash_table
+ * @self: A #HevSCGIRequest
+ *
+ * Gets the header hash table @self is for.
+ *
+ * Returns: (transfer none) (element-type utf8 utf8): A #GHashTable owned by @self. Do not free.
+ *
+ * Since: 0.0.1
+ */
 GHashTable * hev_scgi_request_get_header_hash_table(HevSCGIRequest *self)
 {
 	HevSCGIRequestPrivate *priv = NULL;

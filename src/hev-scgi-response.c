@@ -188,19 +188,21 @@ GOutputStream * hev_scgi_response_get_output_stream(HevSCGIResponse *self)
 }
 
 /**
- * hev_scgi_response_write_header
+ * hev_scgi_response_write_header_async
  * @self: A #HevSCGIResponse
- * @callback: (scope call): Callback function to invoke when write is ready.
+ * @cancellable: (allow-none): optional #GCancellable object, %NULL to ignore.
+ * @callback: (scope async): callback to call when the response is satisfied
  * @user_data: (closure): User data to pass to @callback.
  *
  * Writes header #HevSCGIResponse is for.
  *
  * Since: 0.0.1
  */
-void hev_scgi_response_write_header(HevSCGIResponse *self,
-			GFunc callback, gpointer user_data)
+void hev_scgi_response_write_header_async(HevSCGIResponse *self,
+			GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data)
 {
 	HevSCGIResponsePrivate *priv = NULL;
+	GSimpleAsyncResult *simple = NULL;
 	gpointer key = NULL, value = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -211,9 +213,13 @@ void hev_scgi_response_write_header(HevSCGIResponse *self,
 	g_return_if_fail(NULL!=priv->output_stream);
 	g_return_if_fail(HEADER_STATUS_UNWRITE==priv->header_status);
 
+	/* Simple async result */
+	simple = g_simple_async_result_new(G_OBJECT(self),
+				callback, user_data, hev_scgi_response_write_header_async);
+	g_simple_async_result_set_check_cancellable(simple, cancellable);
+
 	priv->header_status = HEADER_STATUS_WRITING;
-	g_object_set_data(G_OBJECT(self), "callback", callback);
-	g_object_set_data(G_OBJECT(self), "user_data", user_data);
+	g_object_set_data(G_OBJECT(self), "simple", simple);
 	g_hash_table_iter_init(&priv->header_hash_table_iter,
 				priv->header_hash_table);
 	if(g_hash_table_iter_next(&priv->header_hash_table_iter,
@@ -236,6 +242,37 @@ void hev_scgi_response_write_header(HevSCGIResponse *self,
 	}
 }
 
+/**
+ * hev_scgi_response_write_header_finish
+ * @self: A #HevSCGIResponse
+ * @res: A #GAsyncResult
+ * @error: A #GError location to store the error occurring, or %NULL to ignore.
+ *
+ * Finishes an asynchronous write operation.
+ *
+ * Returns: %TRUE if the response was write successfully.
+ */
+gboolean hev_scgi_response_write_header_finish(HevSCGIResponse *self, GAsyncResult *res,
+			GError **error)
+{
+	HevSCGIResponsePrivate *priv = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	g_return_if_fail(HEV_IS_SCGI_RESPONSE(self));
+	priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
+
+	g_return_val_if_fail(g_simple_async_result_is_valid(res,
+					G_OBJECT(self), hev_scgi_response_write_header_async),
+				FALSE);
+
+	if(g_simple_async_result_propagate_error(G_SIMPLE_ASYNC_RESULT(res),
+					error))
+	  return FALSE;
+
+	return g_simple_async_result_get_op_res_gboolean(G_SIMPLE_ASYNC_RESULT(res));
+}
+
 static void hev_scgi_response_output_stream_write_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data)
 {
@@ -244,24 +281,36 @@ static void hev_scgi_response_output_stream_write_async_handler(GObject *source_
 	GFunc callback = g_object_get_data(G_OBJECT(self), "callback");
 	gpointer data = g_object_get_data(G_OBJECT(self), "user_data");
 	gssize size = 0;
+	GError *error = NULL;
 	gpointer key = NULL, value = NULL;
+	GSimpleAsyncResult *simple = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	size = g_output_stream_write_finish(G_OUTPUT_STREAM(source_object),
-				res, NULL);
+				res, &error);
 
+	simple = g_object_get_data(G_OBJECT(self), "simple");
+	/* Call callback when connection closed by remote or error */
 	if(0 >= size)
 	{
 		priv->header_status = HEADER_STATUS_WRITED;
-		callback(self, data);
+
+		g_simple_async_result_take_error(simple, error);
+		g_simple_async_result_set_op_res_gboolean(simple, FALSE);
+		g_simple_async_result_complete_in_idle(simple);
+		g_object_unref(simple);
+
 		return;
 	}
 
 	if(priv->last_write)
 	{
 		priv->header_status = HEADER_STATUS_WRITED;
-		callback(self, data);
+
+		g_simple_async_result_set_op_res_gboolean(simple, TRUE);
+		g_simple_async_result_complete(simple);
+		g_object_unref(simple);
 	}
 	else
 	{

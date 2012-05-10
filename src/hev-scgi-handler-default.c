@@ -20,8 +20,8 @@
 #define HEV_SCGI_HANDLER_DEFAULT_VERSION	"0.0.1"
 #define HEV_SCGI_HANDLER_DEFAULT_PATTERN	".*"
 
-static void hev_scgi_handler_default_response_write_header_handler(gpointer user,
-			gpointer user_data);
+static void hev_scgi_response_write_header_async_handler(GObject *source_object,
+			GAsyncResult *res, gpointer user_data);
 static void hev_scgi_handler_default_output_stream_write_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data);
 
@@ -150,13 +150,12 @@ static void hev_scgi_handler_default_handle(HevSCGIHandler *self, GObject *scgi_
 
 	g_hash_table_insert(res_hash_table, g_strdup("Status"), g_strdup("404 Not Found"));
 	g_hash_table_insert(res_hash_table, g_strdup("Content-Type"), g_strdup("text/html"));
-	hev_scgi_response_write_header(HEV_SCGI_RESPONSE(scgi_response),
-				hev_scgi_handler_default_response_write_header_handler, scgi_task);
-
+	hev_scgi_response_write_header_async(HEV_SCGI_RESPONSE(scgi_response), NULL,
+				hev_scgi_response_write_header_async_handler, scgi_task);
 }
 
-static void hev_scgi_handler_default_response_write_header_handler(gpointer user,
-			gpointer user_data)
+static void hev_scgi_response_write_header_async_handler(GObject *source_object,
+			GAsyncResult *res, gpointer user_data)
 {
 	HevSCGITask *scgi_task = HEV_SCGI_TASK(user_data);
 	HevSCGIHandlerDefault *self = HEV_SCGI_HANDLER_DEFAULT(
@@ -166,6 +165,10 @@ static void hev_scgi_handler_default_response_write_header_handler(gpointer user
 	GString *str = g_string_new(NULL);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	if(!hev_scgi_response_write_header_finish(HEV_SCGI_RESPONSE(source_object),
+					res, NULL))
+	  return;
 
 	scgi_response = hev_scgi_task_get_response(HEV_SCGI_TASK(scgi_task));
 

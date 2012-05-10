@@ -33,6 +33,7 @@ struct _HevSCGIServerPrivate
 	GSocketService *socket_service;
 	GObject *scgi_connection_manager;
 	GObject *scgi_task_dispatcher;
+	GSList *module_slist;
 };
 
 G_DEFINE_TYPE(HevSCGIServer, hev_scgi_server, G_TYPE_OBJECT);
@@ -77,6 +78,12 @@ static void hev_scgi_server_finalize(GObject * obj)
 	HevSCGIServerPrivate * priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	if(priv->module_slist)
+	{
+		g_slist_free_full(priv->module_slist, (GDestroyNotify)g_type_module_unuse);
+		priv->module_slist = NULL;
+	}
 
 	G_OBJECT_CLASS(hev_scgi_server_parent_class)->finalize(obj);
 }
@@ -168,29 +175,27 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 	for(module_sl=module_slist; module_sl; module_sl=g_slist_next(module_sl))
 	{
 		GObject *handler_module = NULL;
-		GKeyFile *module_config = NULL;
-		gchar *module_alias = NULL;
-		gchar *module_pattern = NULL;
-		gchar *module_file_name = NULL;
-		gchar *module_file_path = NULL;
+		GType handler_type = G_TYPE_INVALID;
+		GObject *handler = NULL;
+		GKeyFile *config = NULL;
+		gchar *file_name = NULL;
+		gchar *file_path = NULL;
 
-		module_config = hev_scgi_config_get_module_config(HEV_SCGI_CONFIG(priv->scgi_config),
+		config = hev_scgi_config_get_module_config(HEV_SCGI_CONFIG(priv->scgi_config),
 					(const gchar *)module_sl->data);
 
-		module_alias = g_key_file_get_string(module_config, "Module", "Alias", NULL);
-		module_pattern = g_key_file_get_string(module_config, "Module", "Pattern", NULL);
-		module_file_name = g_key_file_get_string(module_config, "Module", "FileName", NULL);
-		module_file_path = g_build_path(G_DIR_SEPARATOR_S, module_dir_path, module_file_name, NULL);
+		file_name = g_key_file_get_string(config, "Module", "FileName", NULL);
+		file_path = g_build_path(G_DIR_SEPARATOR_S, module_dir_path, file_name, NULL);
 
-		handler_module = hev_scgi_handler_module_new(module_alias, module_pattern,
-					module_file_path, module_config);
-		hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),
-					handler_module);
+		handler_module = hev_scgi_handler_module_new(file_path);
+		g_type_module_use(G_TYPE_MODULE(handler_module));
+		handler_type = hev_scgi_handler_module_get_handler_type(HEV_SCGI_HANDLER_MODULE(handler_module));
+		handler = g_object_new(handler_type, "config", config, NULL);
+		hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher), handler);
+		priv->module_slist = g_slist_append(priv->module_slist, handler_module);
 
-		g_free(module_alias);
-		g_free(module_pattern);
-		g_free(module_file_name);
-		g_free(module_file_path);
+		g_free(file_name);
+		g_free(file_path);
 	}
 
 	g_free(module_dir_path);

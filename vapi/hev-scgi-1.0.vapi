@@ -8,7 +8,7 @@ namespace HevSCGI {
 		public Request ();
 		public unowned GLib.HashTable<string,string> get_header_hash_table ();
 		public unowned GLib.InputStream get_input_stream ();
-		public void read_header (GLib.Func callback);
+		public async bool read_header_async (GLib.Cancellable? cancellable) throws GLib.Error;
 		public void set_input_stream (GLib.InputStream input_stream);
 	}
 	[CCode (cheader_filename = "hev-scgi-1.0.h", type_id = "hev_scgi_response_get_type ()")]
@@ -18,7 +18,7 @@ namespace HevSCGI {
 		public unowned GLib.HashTable<string,string> get_header_hash_table ();
 		public unowned GLib.OutputStream get_output_stream ();
 		public void set_output_stream (GLib.OutputStream output_stream);
-		public void write_header (GLib.Func callback);
+		public async bool write_header_async (GLib.Cancellable? cancellable) throws GLib.Error;
 	}
 	[CCode (cheader_filename = "hev-scgi-1.0.h", type_id = "hev_scgi_server_get_type ()")]
 	public class Server : GLib.Object {

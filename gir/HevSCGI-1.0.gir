@@ -190,23 +190,46 @@ and/or use gtk-doc annotations.  -->
           <type name="Gio.InputStream" c:type="GInputStream*"/>
         </return-value>
       </method>
-      <method name="read_header"
-              c:identifier="hev_scgi_request_read_header"
+      <method name="read_header_async"
+              c:identifier="hev_scgi_request_read_header_async"
               version="0.0.1">
-        <doc xml:whitespace="preserve">Writes header #HevSCGIResponse is for.</doc>
+        <doc xml:whitespace="preserve">Writes header #HevSCGIRequest is for.</doc>
         <return-value transfer-ownership="none">
           <type name="none" c:type="void"/>
         </return-value>
         <parameters>
+          <parameter name="cancellable"
+                     transfer-ownership="none"
+                     allow-none="1">
+            <doc xml:whitespace="preserve">optional #GCancellable object, %NULL to ignore.</doc>
+            <type name="Gio.Cancellable" c:type="GCancellable*"/>
+          </parameter>
           <parameter name="callback"
                      transfer-ownership="none"
-                     scope="call"
-                     closure="1">
-            <type name="GLib.Func" c:type="GFunc"/>
+                     allow-none="1"
+                     scope="async"
+                     closure="2">
+            <doc xml:whitespace="preserve">callback to call when the request is satisfied</doc>
+            <type name="Gio.AsyncReadyCallback" c:type="GAsyncReadyCallback"/>
           </parameter>
           <parameter name="user_data" transfer-ownership="none">
             <doc xml:whitespace="preserve">User data to pass to @callback.</doc>
             <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="read_header_finish"
+              c:identifier="hev_scgi_request_read_header_finish"
+              throws="1">
+        <doc xml:whitespace="preserve">Finishes an asynchronous read operation.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:whitespace="preserve">%TRUE if the request was read successfully.</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <parameter name="res" transfer-ownership="none">
+            <doc xml:whitespace="preserve">A #GAsyncResult</doc>
+            <type name="Gio.AsyncResult" c:type="GAsyncResult*"/>
           </parameter>
         </parameters>
       </method>
@@ -283,24 +306,46 @@ and/or use gtk-doc annotations.  -->
           </parameter>
         </parameters>
       </method>
-      <method name="write_header"
-              c:identifier="hev_scgi_response_write_header"
+      <method name="write_header_async"
+              c:identifier="hev_scgi_response_write_header_async"
               version="0.0.1">
         <doc xml:whitespace="preserve">Writes header #HevSCGIResponse is for.</doc>
         <return-value transfer-ownership="none">
           <type name="none" c:type="void"/>
         </return-value>
         <parameters>
+          <parameter name="cancellable"
+                     transfer-ownership="none"
+                     allow-none="1">
+            <doc xml:whitespace="preserve">optional #GCancellable object, %NULL to ignore.</doc>
+            <type name="Gio.Cancellable" c:type="GCancellable*"/>
+          </parameter>
           <parameter name="callback"
                      transfer-ownership="none"
-                     scope="call"
-                     closure="1">
-            <doc xml:whitespace="preserve">Callback function to invoke when write is ready.</doc>
-            <type name="GLib.Func" c:type="GFunc"/>
+                     allow-none="1"
+                     scope="async"
+                     closure="2">
+            <doc xml:whitespace="preserve">callback to call when the response is satisfied</doc>
+            <type name="Gio.AsyncReadyCallback" c:type="GAsyncReadyCallback"/>
           </parameter>
           <parameter name="user_data" transfer-ownership="none">
             <doc xml:whitespace="preserve">User data to pass to @callback.</doc>
             <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="write_header_finish"
+              c:identifier="hev_scgi_response_write_header_finish"
+              throws="1">
+        <doc xml:whitespace="preserve">Finishes an asynchronous write operation.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:whitespace="preserve">%TRUE if the response was write successfully.</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <parameter name="res" transfer-ownership="none">
+            <doc xml:whitespace="preserve">A #GAsyncResult</doc>
+            <type name="Gio.AsyncResult" c:type="GAsyncResult*"/>
           </parameter>
         </parameters>
       </method>

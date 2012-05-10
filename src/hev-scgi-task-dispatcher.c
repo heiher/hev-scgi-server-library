@@ -13,9 +13,6 @@
 #include "hev-scgi-task.h"
 #include "hev-scgi-handler.h"
 
-static void hev_scgi_task_dispatcher_dispatch(gpointer data,
-			gpointer user_data);
-
 #define HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(obj)	(G_TYPE_INSTANCE_GET_PRIVATE((obj), HEV_TYPE_SCGI_TASK_DISPATCHER, HevSCGITaskDispatcherPrivate))
 
 typedef struct _HevSCGITaskDispatcherPrivate HevSCGITaskDispatcherPrivate;
@@ -26,6 +23,12 @@ struct _HevSCGITaskDispatcherPrivate
 };
 
 G_DEFINE_TYPE(HevSCGITaskDispatcher, hev_scgi_task_dispatcher, G_TYPE_OBJECT);
+
+static void hev_scgi_request_read_header_async_handler(GObject *source_object,
+			GAsyncResult *res, gpointer user_data);
+
+static void hev_scgi_task_dispatcher_dispatch(HevSCGITaskDispatcher *self,
+			GObject *scgi_task);
 
 static void hev_scgi_task_dispatcher_dispose(GObject * obj)
 {
@@ -109,24 +112,35 @@ void hev_scgi_task_dispatcher_push(HevSCGITaskDispatcher *self,
 
 	g_object_set_data(scgi_task, "dispatcher", self);
 	scgi_request = hev_scgi_task_get_request(HEV_SCGI_TASK(scgi_task));
-	hev_scgi_request_read_header(HEV_SCGI_REQUEST(scgi_request),
-				hev_scgi_task_dispatcher_dispatch, scgi_task);
+	hev_scgi_request_read_header_async(HEV_SCGI_REQUEST(scgi_request),
+				NULL, hev_scgi_request_read_header_async_handler, scgi_task);
 }
 
-static void hev_scgi_task_dispatcher_dispatch(gpointer data,
-			gpointer user_data)
+static void hev_scgi_request_read_header_async_handler(GObject *source_object,
+			GAsyncResult *res, gpointer user_data)
 {
-	HevSCGITaskDispatcher *self = NULL;
-	HevSCGITaskDispatcherPrivate * priv = NULL;
-	GObject *scgi_task = G_OBJECT(user_data);
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	if(hev_scgi_request_read_header_finish(HEV_SCGI_REQUEST(source_object),
+					res, NULL))
+	{
+		GObject *scgi_task = user_data;
+		HevSCGITaskDispatcher *self = NULL;
+		
+		self = HEV_SCGI_TASK_DISPATCHER(g_object_get_data(scgi_task, "dispatcher"));
+
+		hev_scgi_task_dispatcher_dispatch(self, scgi_task);
+	}
+}
+
+static void hev_scgi_task_dispatcher_dispatch(HevSCGITaskDispatcher *self,
+			GObject *scgi_task)
+{
+	HevSCGITaskDispatcherPrivate * priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 	GObject *scgi_request = NULL;
 	GHashTable *header_hash_table = NULL;
 	gchar *request_uri = NULL;
 	GSList *sl = NULL;
-
-	self = HEV_SCGI_TASK_DISPATCHER(g_object_get_data(scgi_task,
-					"dispatcher"));
-	priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 

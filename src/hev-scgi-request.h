@@ -42,8 +42,10 @@ GObject * hev_scgi_request_new(void);
 void hev_scgi_request_set_input_stream(HevSCGIRequest *self,
 			GInputStream *input_stream);
 GInputStream * hev_scgi_request_get_input_stream(HevSCGIRequest *self);
-void hev_scgi_request_read_header(HevSCGIRequest *self,
-			GFunc callback, gpointer user_data);
+void hev_scgi_request_read_header_async(HevSCGIRequest *self,
+			GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data);
+gboolean hev_scgi_request_read_header_finish(HevSCGIRequest *self, GAsyncResult *res,
+			GError **error);
 GHashTable * hev_scgi_request_get_header_hash_table(HevSCGIRequest *self);
 
 G_END_DECLS

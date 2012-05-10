@@ -201,19 +201,21 @@ GInputStream * hev_scgi_request_get_input_stream(HevSCGIRequest *self)
 }
 
 /**
- * hev_scgi_request_read_header
+ * hev_scgi_request_read_header_async
  * @self: A #HevSCGIRequest
- * @callback: (scope call): 
+ * @cancellable: (allow-none): optional #GCancellable object, %NULL to ignore.
+ * @callback: (scope async): callback to call when the request is satisfied
  * @user_data: (closure): User data to pass to @callback.
  *
- * Writes header #HevSCGIResponse is for.
+ * Writes header #HevSCGIRequest is for.
  *
  * Since: 0.0.1
  */
-void hev_scgi_request_read_header(HevSCGIRequest *self,
-			GFunc callback, gpointer user_data)
+void hev_scgi_request_read_header_async(HevSCGIRequest *self,
+			GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data)
 {
 	HevSCGIRequestPrivate *priv = NULL;
+	GSimpleAsyncResult *simple = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	
@@ -223,9 +225,13 @@ void hev_scgi_request_read_header(HevSCGIRequest *self,
 	g_return_if_fail(NULL!=priv->input_stream);
 	g_return_if_fail(HEADER_STATUS_UNREAD==priv->header_status);
 
+	/* Simple async result */
+	simple = g_simple_async_result_new(G_OBJECT(self),
+				callback, user_data, hev_scgi_request_read_header_async);
+	g_simple_async_result_set_check_cancellable(simple, cancellable);
+
 	priv->header_status = HEADER_STATUS_READING;
-	g_object_set_data(G_OBJECT(self), "callback", callback);
-	g_object_set_data(G_OBJECT(self), "user_data", user_data);
+	g_object_set_data(G_OBJECT(self), "simple", simple);
 	hev_scgi_request_header_buffer_alloc(self, 4096);
 
 	priv->header_size = 16;
@@ -233,6 +239,37 @@ void hev_scgi_request_read_header(HevSCGIRequest *self,
 				priv->header_buffer, priv->header_size, 0, NULL,
 				hev_scgi_request_input_stream_read_async_handler,
 				self);
+}
+
+/**
+ * hev_scgi_request_read_header_finish
+ * @self: A #HevSCGIRequest
+ * @res: A #GAsyncResult
+ * @error: A #GError location to store the error occurring, or %NULL to ignore.
+ *
+ * Finishes an asynchronous read operation.
+ *
+ * Returns: %TRUE if the request was read successfully.
+ */
+gboolean hev_scgi_request_read_header_finish(HevSCGIRequest *self, GAsyncResult *res,
+			GError **error)
+{
+	HevSCGIRequestPrivate *priv = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	g_return_if_fail(HEV_IS_SCGI_REQUEST(self));
+	priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
+
+	g_return_val_if_fail(g_simple_async_result_is_valid(res,
+					G_OBJECT(self), hev_scgi_request_read_header_async),
+				FALSE);
+
+	if(g_simple_async_result_propagate_error(G_SIMPLE_ASYNC_RESULT(res),
+					error))
+	  return FALSE;
+
+	return g_simple_async_result_get_op_res_gboolean(G_SIMPLE_ASYNC_RESULT(res));
 }
 
 static void hev_scgi_request_header_buffer_alloc(HevSCGIRequest *self,
@@ -277,20 +314,26 @@ static void hev_scgi_request_input_stream_read_async_handler(GObject *source_obj
 	HevSCGIRequest *self = HEV_SCGI_REQUEST(user_data);
 	HevSCGIRequestPrivate *priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
 	gssize size = 0;
-	GFunc callback = g_object_get_data(G_OBJECT(self), "callback");
-	gpointer data = g_object_get_data(G_OBJECT(self), "user_data");
+	GError *error = NULL;
+	GSimpleAsyncResult *simple = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	size = g_input_stream_read_finish(G_INPUT_STREAM(source_object),
-				res, NULL);
+				res, &error);
 	priv->header_buffer_handle_size += size;
 
+	simple = g_object_get_data(G_OBJECT(self), "simple");
 	/* Call callback when connection closed by remote or error */
 	if(0 >= size)
 	{
 		priv->header_status = HEADER_STATUS_READED;
-		callback(self, data);
+
+		g_simple_async_result_take_error(simple, error);
+		g_simple_async_result_set_op_res_gboolean(simple, FALSE);
+		g_simple_async_result_complete_in_idle(simple);
+		g_object_unref(simple);
+
 		return;
 	}
 
@@ -335,7 +378,13 @@ static void hev_scgi_request_input_stream_read_async_handler(GObject *source_obj
 		else /* Invalid request, just callback */
 		{
 			priv->header_status = HEADER_STATUS_READED;
-			callback(self, data);
+
+			g_simple_async_result_set_error(simple, G_IO_ERROR,
+						G_IO_ERROR_INVALID_DATA, "Invalid data!");
+			g_simple_async_result_set_op_res_gboolean(simple, FALSE);
+			g_simple_async_result_complete_in_idle(simple);
+			g_object_unref(simple);
+
 			return;
 		}
 
@@ -344,7 +393,10 @@ static void hev_scgi_request_input_stream_read_async_handler(GObject *source_obj
 
 	hev_scgi_request_parse_header(self);
 	priv->header_status = HEADER_STATUS_READED;
-	callback(self, data);
+
+	g_simple_async_result_set_op_res_gboolean(simple, TRUE);
+	g_simple_async_result_complete(simple);
+	g_object_unref(simple);
 }
 
 static void hev_scgi_request_input_stream_close_async_handler(GObject *source_object,

@@ -27,11 +27,6 @@ and/or use gtk-doc annotations.  -->
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </virtual-method>
-      <virtual-method name="get_config" invoker="get_config">
-        <return-value transfer-ownership="full">
-          <type name="GLib.KeyFile" c:type="GKeyFile*"/>
-        </return-value>
-      </virtual-method>
       <virtual-method name="get_name" invoker="get_name">
         <return-value transfer-ownership="none">
           <type name="utf8" c:type="gchar*"/>
@@ -60,11 +55,6 @@ and/or use gtk-doc annotations.  -->
       <method name="get_alias" c:identifier="hev_scgi_handler_get_alias">
         <return-value transfer-ownership="none">
           <type name="utf8" c:type="gchar*"/>
-        </return-value>
-      </method>
-      <method name="get_config" c:identifier="hev_scgi_handler_get_config">
-        <return-value transfer-ownership="full">
-          <type name="GLib.KeyFile" c:type="GKeyFile*"/>
         </return-value>
       </method>
       <method name="get_name" c:identifier="hev_scgi_handler_get_name">
@@ -139,18 +129,6 @@ and/or use gtk-doc annotations.  -->
         <callback name="get_pattern">
           <return-value transfer-ownership="none">
             <type name="utf8" c:type="gchar*"/>
-          </return-value>
-          <parameters>
-            <parameter name="self" transfer-ownership="none">
-              <type name="Handler" c:type="HevSCGIHandler*"/>
-            </parameter>
-          </parameters>
-        </callback>
-      </field>
-      <field name="get_config">
-        <callback name="get_config">
-          <return-value transfer-ownership="full">
-            <type name="GLib.KeyFile" c:type="GKeyFile*"/>
           </return-value>
           <parameters>
             <parameter name="self" transfer-ownership="none">

@@ -41,7 +41,6 @@ namespace HevSCGI {
 	[CCode (cheader_filename = "hev-scgi-1.0.h", type_cname = "HevSCGIHandlerInterface", type_id = "hev_scgi_handler_get_type ()")]
 	public interface Handler : GLib.Object {
 		public abstract unowned string get_alias ();
-		public abstract GLib.KeyFile get_config ();
 		public abstract unowned string get_name ();
 		public abstract unowned string get_pattern ();
 		public abstract unowned string get_version ();

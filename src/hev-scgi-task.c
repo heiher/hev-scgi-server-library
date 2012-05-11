@@ -127,7 +127,7 @@ GObject * hev_scgi_task_new(void)
  *
  * Gets the request @self is for.
  *
- * Returns: (transfer none) (type HevSCGIRequest): A #HevSCGIRequest owned by @self. Do not free.
+ * Returns: (transfer none): A #HevSCGIRequest owned by @self. Do not free.
  *
  * Since: 0.0.1
  */
@@ -149,7 +149,7 @@ GObject * hev_scgi_task_get_request(HevSCGITask *self)
  *
  * Gets the response @self is for.
  *
- * Returns: (transfer none) (type HevSCGIResponse): A #HevSCGIResponse owned by @self. Do not free.
+ * Returns: (transfer none): A #HevSCGIResponse owned by @self. Do not free.
  *
  * Since: 0.0.1
  */
@@ -168,7 +168,7 @@ GObject * hev_scgi_task_get_response(HevSCGITask *self)
 /**
  * hev_scgi_task_set_socket_connection
  * @self: A #HevSCGITask
- * @connection: (type GSocketConnection): A #GSocketConnection.
+ * @connection: A #GSocketConnection.
  *
  * Sets the socket connection @self is for.
  *
@@ -197,7 +197,7 @@ void hev_scgi_task_set_socket_connection(HevSCGITask *self,
  *
  * Gets the socket connection @self is for.
  *
- * Returns: (transfer none) (type GSocketConnection): A #GSocketConnection owned by @self. Do not free.
+ * Returns: (transfer none): A #GSocketConnection owned by @self. Do not free.
  *
  * Since: 0.0.1
  */
@@ -216,7 +216,7 @@ GObject * hev_scgi_task_get_socket_connection(HevSCGITask *self)
 /**
  * hev_scgi_task_set_handler
  * @self: A #HevSCGITask
- * @handler: (type HevSCGIHandler): A #HevSCGIHandler.
+ * @handler: A #HevSCGIHandler.
  *
  * Sets the handler @self is for.
  *
@@ -241,7 +241,7 @@ void hev_scgi_task_set_handler(HevSCGITask *self, GObject *handler)
  *
  * Gets the handler @self is for.
  *
- * Returns: (transfer none) (type HevSCGIHandler): A #HevSCGIHandler owned by @self. Do not free.
+ * Returns: (transfer none): A #HevSCGIHandler owned by @self. Do not free.
  *
  * Since: 0.0.1
  */

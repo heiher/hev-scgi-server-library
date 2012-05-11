@@ -31,12 +31,12 @@ namespace HevSCGI {
 	public class Task : GLib.Object {
 		[CCode (has_construct_function = false, type = "GObject*")]
 		public Task ();
-		public unowned HevSCGI.Handler get_handler ();
-		public unowned HevSCGI.Request get_request ();
-		public unowned HevSCGI.Response get_response ();
-		public unowned GLib.SocketConnection get_socket_connection ();
-		public void set_handler (HevSCGI.Handler handler);
-		public void set_socket_connection (GLib.SocketConnection connection);
+		public unowned GLib.Object get_handler ();
+		public unowned GLib.Object get_request ();
+		public unowned GLib.Object get_response ();
+		public unowned GLib.Object get_socket_connection ();
+		public void set_handler (GLib.Object handler);
+		public void set_socket_connection (GLib.Object connection);
 	}
 	[CCode (cheader_filename = "hev-scgi-1.0.h", type_cname = "HevSCGIHandlerInterface", type_id = "hev_scgi_handler_get_type ()")]
 	public interface Handler : GLib.Object {

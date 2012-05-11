@@ -413,7 +413,7 @@ and/or use gtk-doc annotations.  -->
         <doc xml:whitespace="preserve">Gets the handler @self is for.</doc>
         <return-value transfer-ownership="none">
           <doc xml:whitespace="preserve">A #HevSCGIHandler owned by @self. Do not free.</doc>
-          <type name="Handler" c:type="GObject*"/>
+          <type name="GObject.Object" c:type="GObject*"/>
         </return-value>
       </method>
       <method name="get_request"
@@ -422,7 +422,7 @@ and/or use gtk-doc annotations.  -->
         <doc xml:whitespace="preserve">Gets the request @self is for.</doc>
         <return-value transfer-ownership="none">
           <doc xml:whitespace="preserve">A #HevSCGIRequest owned by @self. Do not free.</doc>
-          <type name="Request" c:type="GObject*"/>
+          <type name="GObject.Object" c:type="GObject*"/>
         </return-value>
       </method>
       <method name="get_response"
@@ -431,7 +431,7 @@ and/or use gtk-doc annotations.  -->
         <doc xml:whitespace="preserve">Gets the response @self is for.</doc>
         <return-value transfer-ownership="none">
           <doc xml:whitespace="preserve">A #HevSCGIResponse owned by @self. Do not free.</doc>
-          <type name="Response" c:type="GObject*"/>
+          <type name="GObject.Object" c:type="GObject*"/>
         </return-value>
       </method>
       <method name="get_socket_connection"
@@ -440,7 +440,7 @@ and/or use gtk-doc annotations.  -->
         <doc xml:whitespace="preserve">Gets the socket connection @self is for.</doc>
         <return-value transfer-ownership="none">
           <doc xml:whitespace="preserve">A #GSocketConnection owned by @self. Do not free.</doc>
-          <type name="Gio.SocketConnection" c:type="GObject*"/>
+          <type name="GObject.Object" c:type="GObject*"/>
         </return-value>
       </method>
       <method name="set_handler"
@@ -453,7 +453,7 @@ and/or use gtk-doc annotations.  -->
         <parameters>
           <parameter name="handler" transfer-ownership="none">
             <doc xml:whitespace="preserve">A #HevSCGIHandler.</doc>
-            <type name="Handler" c:type="GObject*"/>
+            <type name="GObject.Object" c:type="GObject*"/>
           </parameter>
         </parameters>
       </method>
@@ -467,7 +467,7 @@ and/or use gtk-doc annotations.  -->
         <parameters>
           <parameter name="connection" transfer-ownership="none">
             <doc xml:whitespace="preserve">A #GSocketConnection.</doc>
-            <type name="Gio.SocketConnection" c:type="GObject*"/>
+            <type name="GObject.Object" c:type="GObject*"/>
           </parameter>
         </parameters>
       </method>

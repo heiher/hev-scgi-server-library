@@ -82,7 +82,7 @@ static void hev_scgi_connection_manager_class_init(HevSCGIConnectionManagerClass
 	klass->new_task = hev_scgi_connection_manager_real_new_task;
 
 	hev_scgi_connection_manager_signals[NEW_TASK] =
-		g_signal_new("new_task", G_TYPE_FROM_CLASS(klass),
+		g_signal_new("new-task", G_TYPE_FROM_CLASS(klass),
 					G_SIGNAL_RUN_LAST,
 					G_STRUCT_OFFSET(HevSCGIConnectionManagerClass, new_task),
 					NULL, NULL, g_cclosure_marshal_VOID__OBJECT,

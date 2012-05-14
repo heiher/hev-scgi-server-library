@@ -155,7 +155,7 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 	if(!priv->scgi_connection_manager)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_signal_connect(G_OBJECT(priv->scgi_connection_manager), "new_task",
+	g_signal_connect(G_OBJECT(priv->scgi_connection_manager), "new-task",
 				G_CALLBACK(scgi_connection_manager_new_task_handler), self);
 
 	priv->scgi_task_dispatcher = hev_scgi_task_dispatcher_new();

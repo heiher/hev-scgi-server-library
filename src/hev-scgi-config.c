@@ -157,12 +157,14 @@ GSocketAddress * hev_scgi_config_get_address(HevSCGIConfig *self)
 	}
 	else
 	{
+#ifdef G_OS_UNIX
 		if(g_regex_match_simple("^unix:.*$", address, 0, 0))
 		{
 			socket_address =
 				g_unix_socket_address_new(address+5);
 		}
 		else
+#endif
 		{
 			gchar **addr = NULL;
 

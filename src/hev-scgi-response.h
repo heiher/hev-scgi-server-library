@@ -42,6 +42,7 @@ GObject * hev_scgi_response_new(void);
 void hev_scgi_response_set_output_stream(HevSCGIResponse *self,
 			GOutputStream *output_stream);
 GOutputStream * hev_scgi_response_get_output_stream(HevSCGIResponse *self);
+gboolean hev_scgi_response_write_header(HevSCGIResponse *self);
 void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 			GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data);
 gboolean hev_scgi_response_write_header_finish(HevSCGIResponse *self, GAsyncResult *res,

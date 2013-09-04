@@ -188,6 +188,56 @@ GOutputStream * hev_scgi_response_get_output_stream(HevSCGIResponse *self)
 }
 
 /**
+ * hev_scgi_response_write_header
+ * @self: A #HevSCGIResponse
+ *
+ * Writes header #HevSCGIResponse is for.
+ *
+ * Since: 0.0.1
+ */
+gboolean hev_scgi_response_write_header(HevSCGIResponse *self)
+{
+	HevSCGIResponsePrivate *priv = NULL;
+	gpointer key = NULL, value = NULL;
+	gboolean run = TRUE;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+	
+	g_return_if_fail (HEV_IS_SCGI_RESPONSE(self));
+	priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
+	g_return_if_fail (NULL!=priv->output_stream);
+	g_return_if_fail (HEADER_STATUS_UNWRITE==priv->header_status);
+
+	priv->header_status = HEADER_STATUS_WRITING;
+
+	g_hash_table_iter_init (&priv->header_hash_table_iter,
+				priv->header_hash_table);
+	for (; run;) {
+		gchar buffer[1024];
+		gint i = 0, len;
+
+		if(g_hash_table_iter_next (&priv->header_hash_table_iter,
+						&key, &value)) {
+			len = g_snprintf (buffer, 1024, "%s: %s\r\n", key, value);
+		} else {
+			len = g_snprintf (buffer, 1024, "\r\n");
+			run = FALSE;
+		}
+
+		do {
+			gssize ret = g_output_stream_write (priv->output_stream,
+						buffer + i, len - i, NULL, NULL);
+			if (-1 == ret)
+			  return FALSE;
+			i += ret;
+		} while (i < len);
+	}
+
+	priv->header_status = HEADER_STATUS_WRITED;
+	return TRUE;
+}
+
+/**
  * hev_scgi_response_write_header_async
  * @self: A #HevSCGIResponse
  * @cancellable: (allow-none): optional #GCancellable object, %NULL to ignore.

@@ -56,9 +56,6 @@ static void hev_scgi_task_dispose(GObject * obj)
 
 static void hev_scgi_task_finalize(GObject * obj)
 {
-	HevSCGITask * self = HEV_SCGI_TASK(obj);
-	HevSCGITaskPrivate * priv = HEV_SCGI_TASK_GET_PRIVATE(self);
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	G_OBJECT_CLASS(hev_scgi_task_parent_class)->finalize(obj);
@@ -207,7 +204,7 @@ GObject * hev_scgi_task_get_socket_connection(HevSCGITask *self)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_if_fail(HEV_IS_SCGI_TASK(self));
+	g_return_val_if_fail(HEV_IS_SCGI_TASK(self), NULL);
 	priv = HEV_SCGI_TASK_GET_PRIVATE(self);
 
 	return priv->connection;
@@ -251,7 +248,7 @@ GObject * hev_scgi_task_get_handler(HevSCGITask *self)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_if_fail(HEV_IS_SCGI_TASK(self));
+	g_return_val_if_fail(HEV_IS_SCGI_TASK(self), FALSE);
 	priv = HEV_SCGI_TASK_GET_PRIVATE(self);
 
 	return priv->handler;

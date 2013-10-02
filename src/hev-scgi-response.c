@@ -203,10 +203,10 @@ gboolean hev_scgi_response_write_header(HevSCGIResponse *self)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	
-	g_return_if_fail (HEV_IS_SCGI_RESPONSE(self));
+	g_return_val_if_fail (HEV_IS_SCGI_RESPONSE(self), FALSE);
 	priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
-	g_return_if_fail (NULL!=priv->output_stream);
-	g_return_if_fail (HEADER_STATUS_UNWRITE==priv->header_status);
+	g_return_val_if_fail (NULL!=priv->output_stream, FALSE);
+	g_return_val_if_fail (HEADER_STATUS_UNWRITE==priv->header_status, FALSE);
 
 	priv->header_status = HEADER_STATUS_WRITING;
 
@@ -309,7 +309,7 @@ gboolean hev_scgi_response_write_header_finish(HevSCGIResponse *self, GAsyncResu
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_if_fail(HEV_IS_SCGI_RESPONSE(self));
+	g_return_val_if_fail(HEV_IS_SCGI_RESPONSE(self), FALSE);
 	priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
 
 	g_return_val_if_fail(g_simple_async_result_is_valid(res,
@@ -328,8 +328,6 @@ static void hev_scgi_response_output_stream_write_async_handler(GObject *source_
 {
 	HevSCGIResponse *self = HEV_SCGI_RESPONSE(user_data);
 	HevSCGIResponsePrivate *priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
-	GFunc callback = g_object_get_data(G_OBJECT(self), "callback");
-	gpointer data = g_object_get_data(G_OBJECT(self), "user_data");
 	gssize size = 0;
 	GError *error = NULL;
 	gpointer key = NULL, value = NULL;

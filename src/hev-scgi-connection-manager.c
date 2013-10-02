@@ -37,9 +37,6 @@ G_DEFINE_TYPE(HevSCGIConnectionManager, hev_scgi_connection_manager, G_TYPE_OBJE
 
 static void hev_scgi_connection_manager_dispose(GObject * obj)
 {
-	HevSCGIConnectionManager * self = HEV_SCGI_CONNECTION_MANAGER(obj);
-	HevSCGIConnectionManagerPrivate * priv = HEV_SCGI_CONNECTION_MANAGER_GET_PRIVATE(self);
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	G_OBJECT_CLASS(hev_scgi_connection_manager_parent_class)->dispose(obj);
@@ -47,9 +44,6 @@ static void hev_scgi_connection_manager_dispose(GObject * obj)
 
 static void hev_scgi_connection_manager_finalize(GObject * obj)
 {
-	HevSCGIConnectionManager * self = HEV_SCGI_CONNECTION_MANAGER(obj);
-	HevSCGIConnectionManagerPrivate * priv = HEV_SCGI_CONNECTION_MANAGER_GET_PRIVATE(self);
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	G_OBJECT_CLASS(hev_scgi_connection_manager_parent_class)->finalize(obj);
@@ -93,7 +87,6 @@ static void hev_scgi_connection_manager_class_init(HevSCGIConnectionManagerClass
 
 static void hev_scgi_connection_manager_init(HevSCGIConnectionManager * self)
 {
-	HevSCGIConnectionManagerPrivate * priv = HEV_SCGI_CONNECTION_MANAGER_GET_PRIVATE(self);
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 }
 

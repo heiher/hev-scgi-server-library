@@ -8,6 +8,8 @@
  ============================================================================
  */
 
+#include <gio/gunixsocketaddress.h>
+
 #include "hev-scgi-config.h"
 
 #define HEV_SCGI_CONFIG_FILE_NAME_MAIN				"main.conf"
@@ -27,9 +29,6 @@ G_DEFINE_TYPE(HevSCGIConfig, hev_scgi_config, G_TYPE_OBJECT);
 
 static void hev_scgi_config_dispose(GObject * obj)
 {
-	HevSCGIConfig * self = HEV_SCGI_CONFIG(obj);
-	HevSCGIConfigPrivate * priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	G_OBJECT_CLASS(hev_scgi_config_parent_class)->dispose(obj);
@@ -175,7 +174,7 @@ GSocketAddress * hev_scgi_config_get_address(HevSCGIConfig *self)
 
 				inet_address = g_inet_address_new_from_string(addr[0]);
 				socket_address = g_inet_socket_address_new(inet_address,
-							atoi(addr[1]));
+							g_ascii_strtoull(addr[1], NULL, 10));
 
 				g_object_unref(G_OBJECT(inet_address));
 			}

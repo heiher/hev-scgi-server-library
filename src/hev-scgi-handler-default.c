@@ -45,9 +45,6 @@ G_DEFINE_TYPE_WITH_CODE(HevSCGIHandlerDefault, hev_scgi_handler_default, G_TYPE_
 
 static void hev_scgi_handler_default_dispose(GObject * obj)
 {
-	HevSCGIHandlerDefault * self = HEV_SCGI_HANDLER_DEFAULT(obj);
-	HevSCGIHandlerDefaultPrivate * priv = HEV_SCGI_HANDLER_DEFAULT_GET_PRIVATE(self);
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	G_OBJECT_CLASS(hev_scgi_handler_default_parent_class)->dispose(obj);
@@ -55,9 +52,6 @@ static void hev_scgi_handler_default_dispose(GObject * obj)
 
 static void hev_scgi_handler_default_finalize(GObject * obj)
 {
-	HevSCGIHandlerDefault * self = HEV_SCGI_HANDLER_DEFAULT(obj);
-	HevSCGIHandlerDefaultPrivate * priv = HEV_SCGI_HANDLER_DEFAULT_GET_PRIVATE(self);
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	G_OBJECT_CLASS(hev_scgi_handler_default_parent_class)->finalize(obj);
@@ -103,7 +97,6 @@ static void hev_scgi_handler_iface_init(HevSCGIHandlerInterface * iface)
 
 static void hev_scgi_handler_default_init(HevSCGIHandlerDefault * self)
 {
-	HevSCGIHandlerDefaultPrivate * priv = HEV_SCGI_HANDLER_DEFAULT_GET_PRIVATE(self);
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 }
 

@@ -32,9 +32,6 @@ static void hev_scgi_task_dispatcher_dispatch(HevSCGITaskDispatcher *self,
 
 static void hev_scgi_task_dispatcher_dispose(GObject * obj)
 {
-	HevSCGITaskDispatcher * self = HEV_SCGI_TASK_DISPATCHER(obj);
-	HevSCGITaskDispatcherPrivate * priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	G_OBJECT_CLASS(hev_scgi_task_dispatcher_parent_class)->dispose(obj);
@@ -86,7 +83,6 @@ static void hev_scgi_task_dispatcher_class_init(HevSCGITaskDispatcherClass * kla
 
 static void hev_scgi_task_dispatcher_init(HevSCGITaskDispatcher * self)
 {
-	HevSCGITaskDispatcherPrivate * priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 }
 

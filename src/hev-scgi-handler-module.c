@@ -36,8 +36,6 @@ G_DEFINE_TYPE(HevSCGIHandlerModule, hev_scgi_handler_module, G_TYPE_TYPE_MODULE)
 
 static void hev_scgi_handler_module_dispose(GObject * obj)
 {
-	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE(obj);
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	G_OBJECT_CLASS(hev_scgi_handler_module_parent_class)->dispose(obj);
@@ -174,11 +172,6 @@ static void hev_scgi_handler_module_class_init(HevSCGIHandlerModuleClass * klass
 				hev_scgi_handler_module_properties);
 
 	g_type_class_add_private(klass, sizeof(HevSCGIHandlerModulePrivate));
-}
-
-static void hev_scgi_handler_module_class_finalize(HevSCGIHandlerModuleClass * klass)
-{
-	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 }
 
 static void hev_scgi_handler_module_init(HevSCGIHandlerModule * self)

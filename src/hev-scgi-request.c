@@ -258,7 +258,7 @@ gboolean hev_scgi_request_read_header_finish(HevSCGIRequest *self, GAsyncResult 
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_if_fail(HEV_IS_SCGI_REQUEST(self));
+	g_return_val_if_fail(HEV_IS_SCGI_REQUEST(self), FALSE);
 	priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
 
 	g_return_val_if_fail(g_simple_async_result_is_valid(res,
@@ -358,7 +358,8 @@ static void hev_scgi_request_input_stream_read_async_handler(GObject *source_obj
 			strs = g_regex_split_simple(":", priv->header_buffer, 0, 0);
 
 			priv->header_head_size = strlen(strs[0]) + 1;
-			priv->header_size = atoi(strs[0]) + priv->header_head_size + 1;
+			priv->header_size = g_ascii_strtoull(strs[0], NULL, 10) +
+				priv->header_head_size + 1;
 			if(priv->header_buffer_size < priv->header_size)
 			  hev_scgi_request_header_buffer_alloc(self, priv->header_size);
 

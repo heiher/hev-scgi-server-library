@@ -1,8 +1,8 @@
 /*
  ============================================================================
  Name        : hev-scgi-handler-default.c
- Author      : Heiher <admin@heiher.info>
- Version     : 0.0.1
+ Author      : Heiher <root@heiher.info>
+ Version     : 0.0.2
  Copyright   : Copyright (C) 2011 everyone.
  Description : 
  ============================================================================
@@ -17,7 +17,7 @@
 #include "hev-scgi-response.h"
 
 #define HEV_SCGI_HANDLER_DEFAULT_NAME		"HevSCGIHandlerDefault"
-#define HEV_SCGI_HANDLER_DEFAULT_VERSION	"0.0.1"
+#define HEV_SCGI_HANDLER_DEFAULT_VERSION	"0.0.2"
 #define HEV_SCGI_HANDLER_DEFAULT_PATTERN	".*"
 
 static void hev_scgi_response_write_header_async_handler(GObject *source_object,
@@ -31,7 +31,7 @@ typedef struct _HevSCGIHandlerDefaultPrivate HevSCGIHandlerDefaultPrivate;
 
 struct _HevSCGIHandlerDefaultPrivate
 {
-	gchar c;
+	GString *html;
 };
 
 static void hev_scgi_handler_iface_init(HevSCGIHandlerInterface * iface);
@@ -52,7 +52,16 @@ static void hev_scgi_handler_default_dispose(GObject * obj)
 
 static void hev_scgi_handler_default_finalize(GObject * obj)
 {
+	HevSCGIHandlerDefault *self = HEV_SCGI_HANDLER_DEFAULT(obj);
+	HevSCGIHandlerDefaultPrivate *priv = HEV_SCGI_HANDLER_DEFAULT_GET_PRIVATE(self);
+
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	if(priv->html)
+	{
+		g_string_free(priv->html, TRUE);
+		priv->html = NULL;
+	}
 
 	G_OBJECT_CLASS(hev_scgi_handler_default_parent_class)->finalize(obj);
 }
@@ -97,7 +106,16 @@ static void hev_scgi_handler_iface_init(HevSCGIHandlerInterface * iface)
 
 static void hev_scgi_handler_default_init(HevSCGIHandlerDefault * self)
 {
+	HevSCGIHandlerDefaultPrivate *priv = HEV_SCGI_HANDLER_DEFAULT_GET_PRIVATE(self);
+
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	priv->html = g_string_new(NULL);
+	g_string_printf(priv->html, "<html>\r\n<head><title>404 Not Found</title></head>\r\n"
+				"<body bgcolor=\"white\">\r\n<center><h1>404 Not Found</h1></center>\r\n"
+				"<hr><center>%s/%s</center>\r\n</body>\r\n</html>",
+				hev_scgi_handler_get_name(HEV_SCGI_HANDLER(self)),
+				hev_scgi_handler_get_version(HEV_SCGI_HANDLER(self)));
 }
 
 GObject * hev_scgi_handler_default_new(void)
@@ -153,9 +171,9 @@ static void hev_scgi_response_write_header_async_handler(GObject *source_object,
 	HevSCGITask *scgi_task = HEV_SCGI_TASK(user_data);
 	HevSCGIHandlerDefault *self = HEV_SCGI_HANDLER_DEFAULT(
 				hev_scgi_task_get_handler(scgi_task));
+	HevSCGIHandlerDefaultPrivate *priv = HEV_SCGI_HANDLER_DEFAULT_GET_PRIVATE(self);
 	GObject *scgi_response = NULL;
 	GOutputStream *output_stream = NULL;
-	GString *str = g_string_new(NULL);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
@@ -164,16 +182,8 @@ static void hev_scgi_response_write_header_async_handler(GObject *source_object,
 	  return;
 
 	scgi_response = hev_scgi_task_get_response(HEV_SCGI_TASK(scgi_task));
-
 	output_stream = hev_scgi_response_get_output_stream(HEV_SCGI_RESPONSE(scgi_response));
-
-	g_object_set_data(G_OBJECT(scgi_task), "str", str);
-	g_string_printf(str, "<html>\r\n<head><title>404 Not Found</title></head>\r\n"
-				"<body bgcolor=\"white\">\r\n<center><h1>404 Not Found</h1></center>\r\n"
-				"<hr><center>%s/%s</center>\r\n</body>\r\n</html>",
-				hev_scgi_handler_get_name(HEV_SCGI_HANDLER(self)),
-				hev_scgi_handler_get_version(HEV_SCGI_HANDLER(self)));
-	g_output_stream_write_async(output_stream, str->str, str->len, 0, NULL,
+	g_output_stream_write_async(output_stream, priv->html->str, priv->html->len, 0, NULL,
 				hev_scgi_handler_default_output_stream_write_async_handler,
 				scgi_task);
 }
@@ -185,8 +195,6 @@ static void hev_scgi_handler_default_output_stream_write_async_handler(GObject *
 
 	g_output_stream_write_finish(G_OUTPUT_STREAM(source_object),
 				res, NULL);
-
-	g_string_free(g_object_get_data(user_data, "str"), TRUE);
 	g_object_unref(user_data);
 }
 

@@ -42,7 +42,7 @@ $(TARGET) : $(LDOBJS)
 	@echo -n "Linking $^ to $@ ... " && $(CC) -o $@ $^ $(LDFLAGS) && echo "OK"
 
 $(GIR_FILE) : $(TARGET) $(GIR_SOURCES)
-	@echo -n "Generating $@ ..." && \
+	@echo -n "Generating $@ ..." && LD_LIBRARY_PATH=./bin \
 		$(GIR_SCANNER) --quiet -l hev-scgi-server -L bin \
 		-n HevSCGI --nsversion=1.0 --c-include hev-scgi-1.0.h \
 		-i GLib-2.0 -i GObject-2.0 -i Gio-2.0 \

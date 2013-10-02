@@ -190,12 +190,13 @@ GOutputStream * hev_scgi_response_get_output_stream(HevSCGIResponse *self)
 /**
  * hev_scgi_response_write_header
  * @self: A #HevSCGIResponse
+ * @error: A #GError location to store the error occurring, or %NULL to ignore.
  *
  * Writes header #HevSCGIResponse is for.
  *
  * Since: 0.0.1
  */
-gboolean hev_scgi_response_write_header(HevSCGIResponse *self)
+gboolean hev_scgi_response_write_header(HevSCGIResponse *self, GError **error)
 {
 	HevSCGIResponsePrivate *priv = NULL;
 	gpointer key = NULL, value = NULL;
@@ -226,7 +227,7 @@ gboolean hev_scgi_response_write_header(HevSCGIResponse *self)
 
 		do {
 			gssize ret = g_output_stream_write (priv->output_stream,
-						buffer + i, len - i, NULL, NULL);
+						buffer + i, len - i, NULL, error);
 			if (-1 == ret)
 			  return FALSE;
 			i += ret;

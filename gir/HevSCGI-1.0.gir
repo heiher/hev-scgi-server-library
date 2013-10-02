@@ -308,6 +308,7 @@ and/or use gtk-doc annotations.  -->
       </method>
       <method name="write_header"
               c:identifier="hev_scgi_response_write_header"
+              throws="1"
               version="0.0.1">
         <doc xml:whitespace="preserve">Writes header #HevSCGIResponse is for.</doc>
         <return-value transfer-ownership="none">

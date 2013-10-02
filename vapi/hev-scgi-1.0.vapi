@@ -18,7 +18,7 @@ namespace HevSCGI {
 		public unowned GLib.HashTable<string,string> get_header_hash_table ();
 		public unowned GLib.OutputStream get_output_stream ();
 		public void set_output_stream (GLib.OutputStream output_stream);
-		public bool write_header ();
+		public bool write_header () throws GLib.Error;
 		public async bool write_header_async (GLib.Cancellable? cancellable) throws GLib.Error;
 	}
 	[CCode (cheader_filename = "hev-scgi-1.0.h", type_id = "hev_scgi_server_get_type ()")]

@@ -1,9 +1,10 @@
 # Makefile for hev-scgi-server
  
 PP=cpp
-CC=gcc
-CCFLAGS=-g -fPIC `pkg-config --cflags glib-2.0 gio-2.0 gmodule-2.0`
-LDFLAGS=-shared `pkg-config --libs glib-2.0 gio-2.0 gmodule-2.0`
+CC=cc
+PKG_DEPS=glib-2.0 gmodule-2.0 gio-2.0 gio-unix-2.0
+CCFLAGS=-O3 -fPIC `pkg-config --cflags $(PKG_DEPS)`
+LDFLAGS=-shared `pkg-config --libs $(PKG_DEPS)`
  
 SRCDIR=src
 BINDIR=bin

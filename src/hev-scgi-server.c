@@ -17,6 +17,15 @@
 #include "hev-scgi-handler-module.h"
 #include "hev-scgi-handler-default.h"
 
+enum
+{
+	PROP_0,
+	PROP_CONF_DIR,
+	N_PROPERTIES
+};
+
+static GParamSpec *hev_scgi_server_properties[N_PROPERTIES] = { NULL };
+
 static gboolean socket_service_incoming_handler(GSocketService *service,
 			GSocketConnection *connection, GObject *source_object,
 			gpointer user_data);
@@ -29,6 +38,8 @@ typedef struct _HevSCGIServerPrivate HevSCGIServerPrivate;
 
 struct _HevSCGIServerPrivate
 {
+	gchar *conf_dir;
+
 	GObject *scgi_config;
 	GSocketService *socket_service;
 	GObject *scgi_connection_manager;
@@ -85,6 +96,12 @@ static void hev_scgi_server_finalize(GObject * obj)
 		priv->module_slist = NULL;
 	}
 
+	if(priv->conf_dir)
+	{
+		g_free(priv->conf_dir);
+		priv->conf_dir = NULL;
+	}
+
 	G_OBJECT_CLASS(hev_scgi_server_parent_class)->finalize(obj);
 }
 
@@ -101,6 +118,44 @@ static void hev_scgi_server_constructed(GObject * obj)
 	G_OBJECT_CLASS(hev_scgi_server_parent_class)->constructed(obj);
 }
 
+static void hev_scgi_server_set_property(GObject *obj,
+			guint prop_id, const GValue *value, GParamSpec *pspec)
+{
+	HevSCGIServer * self = HEV_SCGI_SERVER(obj);
+	HevSCGIServerPrivate * priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	switch(prop_id)
+	{
+	case PROP_CONF_DIR:
+		priv->conf_dir = g_value_dup_string(value);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, prop_id, pspec);
+		break;
+	}
+}
+
+static void hev_scgi_server_get_property(GObject *obj,
+			guint prop_id, GValue *value, GParamSpec *pspec)
+{
+	HevSCGIServer * self = HEV_SCGI_SERVER(obj);
+	HevSCGIServerPrivate * priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	switch(prop_id)
+	{
+	case PROP_CONF_DIR:
+		g_value_set_string(value, priv->conf_dir);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, prop_id, pspec);
+		break;
+	}
+}
+
 static void hev_scgi_server_class_init(HevSCGIServerClass * klass)
 {
 	GObjectClass * obj_class = G_OBJECT_CLASS(klass);
@@ -109,8 +164,19 @@ static void hev_scgi_server_class_init(HevSCGIServerClass * klass)
 
 	obj_class->constructor = hev_scgi_server_constructor;
 	obj_class->constructed = hev_scgi_server_constructed;
+	obj_class->set_property = hev_scgi_server_set_property;
+	obj_class->get_property = hev_scgi_server_get_property;
 	obj_class->dispose = hev_scgi_server_dispose;
 	obj_class->finalize = hev_scgi_server_finalize;
+
+	hev_scgi_server_properties[PROP_CONF_DIR] =
+		g_param_spec_string ("conf-dir",
+					"Configure Directory",
+					"The directory path to use when loading config file.",
+					NULL,
+					G_PARAM_READWRITE |	G_PARAM_CONSTRUCT_ONLY);
+	g_object_class_install_properties(obj_class, N_PROPERTIES,
+				hev_scgi_server_properties);
 
 	g_type_class_add_private(klass, sizeof(HevSCGIServerPrivate));
 }
@@ -126,7 +192,7 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	priv->scgi_config = hev_scgi_config_new();
+	priv->scgi_config = hev_scgi_config_new(priv->conf_dir);
 	if(!priv->scgi_config)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
@@ -207,10 +273,10 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 				handler_default);
 }
 
-GObject * hev_scgi_server_new(void)
+GObject * hev_scgi_server_new(const gchar *conf_dir)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-	return g_object_new(HEV_TYPE_SCGI_SERVER, NULL);
+	return g_object_new(HEV_TYPE_SCGI_SERVER, "conf-dir", conf_dir, NULL);
 }
 
 void hev_scgi_server_start(HevSCGIServer *self)

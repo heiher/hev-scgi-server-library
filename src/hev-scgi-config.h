@@ -38,7 +38,7 @@ struct _HevSCGIConfigClass
 
 GType hev_scgi_config_get_type(void);
 
-GObject * hev_scgi_config_new(void);
+GObject * hev_scgi_config_new(const gchar *conf_dir);
 
 GSocketAddress * hev_scgi_config_get_address(HevSCGIConfig *self);
 

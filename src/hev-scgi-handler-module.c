@@ -191,12 +191,10 @@ GObject * hev_scgi_handler_module_new(const gchar *path)
 
 GType hev_scgi_handler_module_get_handler_type(HevSCGIHandlerModule *self)
 {
-	HevSCGIHandlerModulePrivate * priv = NULL;
+	HevSCGIHandlerModulePrivate * priv = HEV_SCGI_HANDLER_MODULE_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_val_if_fail(HEV_IS_SCGI_HANDLER_MODULE(self), G_TYPE_INVALID);
-	priv = HEV_SCGI_HANDLER_MODULE_GET_PRIVATE(self);
 	g_return_val_if_fail(priv->get_handler_type, G_TYPE_INVALID);
 
 	return priv->get_handler_type(G_TYPE_MODULE(self));

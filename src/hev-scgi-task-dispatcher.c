@@ -95,14 +95,10 @@ GObject * hev_scgi_task_dispatcher_new(void)
 void hev_scgi_task_dispatcher_push(HevSCGITaskDispatcher *self,
 			GObject *scgi_task)
 {
-	HevSCGITaskDispatcherPrivate * priv = NULL;
+	HevSCGITaskDispatcherPrivate * priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 	GObject *scgi_request = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	g_return_if_fail(HEV_IS_SCGI_TASK_DISPATCHER(self));
-	g_return_if_fail(HEV_IS_SCGI_TASK(scgi_task));
-	priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 
 	g_object_ref(scgi_task);
 
@@ -169,13 +165,9 @@ static void hev_scgi_task_dispatcher_dispatch(HevSCGITaskDispatcher *self,
 void hev_scgi_task_dispatcher_add_handler(HevSCGITaskDispatcher *self,
 			GObject *scgi_handler)
 {
-	HevSCGITaskDispatcherPrivate * priv = NULL;
+	HevSCGITaskDispatcherPrivate * priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	g_return_if_fail(HEV_IS_SCGI_TASK_DISPATCHER(self));
-	g_return_if_fail(HEV_IS_SCGI_HANDLER(scgi_handler));
-	priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 
 	priv->handler_slist = g_slist_append(priv->handler_slist,
 				scgi_handler);

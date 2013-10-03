@@ -284,28 +284,16 @@ static void hev_scgi_request_header_buffer_alloc(HevSCGIRequest *self,
 	g_return_if_fail(0<size);
 	priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
 
-	if(0 == (size%4096))
-	  size = (size/4096) * 4096;
-	else
-	  size = ((size/4096)+1) * 4096;
-
-	buffer = g_slice_alloc0(size);
-
+	buffer = g_slice_alloc(size);
 	if(priv->header_buffer)
 	{
-		if(buffer)
-		  g_memmove(buffer, priv->header_buffer,
-					  priv->header_buffer_handle_size);
-
+		g_memmove(buffer, priv->header_buffer,
+					priv->header_buffer_handle_size);
 		g_slice_free1(priv->header_buffer_size,
 					priv->header_buffer);
 	}
-	
-	if(buffer)
-	{
-		priv->header_buffer = buffer;
-		priv->header_buffer_size = size;
-	}
+	priv->header_buffer = buffer;
+	priv->header_buffer_size = size;
 }
 
 static void hev_scgi_request_input_stream_read_async_handler(GObject *source_object,

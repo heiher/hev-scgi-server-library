@@ -205,15 +205,12 @@ GObject * hev_scgi_config_new(const gchar *conf_dir)
 
 GSocketAddress * hev_scgi_config_get_address(HevSCGIConfig *self)
 {
-	HevSCGIConfigPrivate *priv = NULL;
+	HevSCGIConfigPrivate *priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);;
 	GSocketAddress *socket_address = NULL;
 	gchar *address = NULL;
 	GError *error = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	g_return_val_if_fail(HEV_IS_SCGI_CONFIG(self), NULL);
-	priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 
 	address = g_key_file_get_string(priv->key_file_main,
 				"Server", "Address", &error);
@@ -259,14 +256,11 @@ GSocketAddress * hev_scgi_config_get_address(HevSCGIConfig *self)
 
 gchar * hev_scgi_config_get_module_dir_path(HevSCGIConfig *self)
 {
-	HevSCGIConfigPrivate *priv = NULL;
+	HevSCGIConfigPrivate *priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);;
 	gchar *path = NULL;
 	GError *error = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	g_return_val_if_fail(HEV_IS_SCGI_CONFIG(self), NULL);
-	priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 
 	path = g_key_file_get_string(priv->key_file_main,
 				"Server", "ModuleDirPath", &error);
@@ -282,14 +276,11 @@ gchar * hev_scgi_config_get_module_dir_path(HevSCGIConfig *self)
 
 GSList * hev_scgi_config_get_modules(HevSCGIConfig *self)
 {
-	HevSCGIConfigPrivate *priv = NULL;
+	HevSCGIConfigPrivate *priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);;
 	GSList *slist = NULL;
 	gchar **groups = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	g_return_val_if_fail(HEV_IS_SCGI_CONFIG(self), NULL);
-	priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 
 	groups = g_key_file_get_groups(priv->key_file_modules, NULL);
 	if(groups)
@@ -309,14 +300,10 @@ GSList * hev_scgi_config_get_modules(HevSCGIConfig *self)
 GKeyFile * hev_scgi_config_get_module_config(HevSCGIConfig *self,
 			const gchar *id)
 {
-	HevSCGIConfigPrivate *priv = NULL;
+	HevSCGIConfigPrivate *priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);;
 	GKeyFile *key_file = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	g_return_val_if_fail(HEV_IS_SCGI_CONFIG(self), NULL);
-	g_return_val_if_fail(id, NULL);
-	priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 
 	key_file = g_key_file_new();
 	if(key_file)

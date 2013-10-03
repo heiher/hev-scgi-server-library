@@ -16,6 +16,7 @@
 G_BEGIN_DECLS
 
 #define HEV_TYPE_SCGI_TASK	(hev_scgi_task_get_type())
+#define HEV_SCGI_TASK_CAST(obj)	((HevSCGITask *)obj)
 #define HEV_SCGI_TASK(obj)	(G_TYPE_CHECK_INSTANCE_CAST((obj), HEV_TYPE_SCGI_TASK, HevSCGITask))
 #define HEV_IS_SCGI_TASK(obj)	(G_TYPE_CHECK_INSTANCE_TYPE((obj), HEV_TYPE_SCGI_TASK))
 #define HEV_SCGI_TASK_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST((klass), HEV_TYPE_SCGI_TASK, HevSCGITaskClass))

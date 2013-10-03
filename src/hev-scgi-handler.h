@@ -16,6 +16,7 @@
 G_BEGIN_DECLS
 
 #define HEV_TYPE_SCGI_HANDLER			(hev_scgi_handler_get_type())
+#define HEV_SCGI_HANDLER_CAST(obj)			((HevSCGIHandler *)obj)
 #define HEV_SCGI_HANDLER(obj)			(G_TYPE_CHECK_INSTANCE_CAST((obj), \
 									HEV_TYPE_SCGI_HANDLER, HevSCGIHandler))
 #define HEV_IS_SCGI_HANDLER(obj)		(G_TYPE_CHECK_INSTANCE_TYPE((obj), \

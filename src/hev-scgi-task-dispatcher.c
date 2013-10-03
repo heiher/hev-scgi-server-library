@@ -39,7 +39,7 @@ static void hev_scgi_task_dispatcher_dispose(GObject * obj)
 
 static void hev_scgi_task_dispatcher_finalize(GObject * obj)
 {
-	HevSCGITaskDispatcher * self = HEV_SCGI_TASK_DISPATCHER(obj);
+	HevSCGITaskDispatcher * self = HEV_SCGI_TASK_DISPATCHER_CAST(obj);
 	HevSCGITaskDispatcherPrivate * priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -123,7 +123,7 @@ static void hev_scgi_request_read_header_async_handler(GObject *source_object,
 		GObject *scgi_task = user_data;
 		HevSCGITaskDispatcher *self = NULL;
 		
-		self = HEV_SCGI_TASK_DISPATCHER(g_object_get_data(scgi_task, "dispatcher"));
+		self = HEV_SCGI_TASK_DISPATCHER_CAST(g_object_get_data(scgi_task, "dispatcher"));
 
 		hev_scgi_task_dispatcher_dispatch(self, scgi_task);
 	}

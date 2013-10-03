@@ -51,7 +51,7 @@ G_DEFINE_TYPE(HevSCGIServer, hev_scgi_server, G_TYPE_OBJECT);
 
 static void hev_scgi_server_dispose(GObject * obj)
 {
-	HevSCGIServer * self = HEV_SCGI_SERVER(obj);
+	HevSCGIServer * self = HEV_SCGI_SERVER_CAST(obj);
 	HevSCGIServerPrivate * priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -85,7 +85,7 @@ static void hev_scgi_server_dispose(GObject * obj)
 
 static void hev_scgi_server_finalize(GObject * obj)
 {
-	HevSCGIServer * self = HEV_SCGI_SERVER(obj);
+	HevSCGIServer * self = HEV_SCGI_SERVER_CAST(obj);
 	HevSCGIServerPrivate * priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -113,7 +113,7 @@ static GObject * hev_scgi_server_constructor(GType type, guint n, GObjectConstru
 
 static void hev_scgi_server_constructed(GObject * obj)
 {
-	HevSCGIServer * self = HEV_SCGI_SERVER(obj);
+	HevSCGIServer * self = HEV_SCGI_SERVER_CAST(obj);
 	HevSCGIServerPrivate * priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
 	GSocketAddress *socket_address = NULL;
 	GError *error = NULL;
@@ -209,7 +209,7 @@ static void hev_scgi_server_constructed(GObject * obj)
 static void hev_scgi_server_set_property(GObject *obj,
 			guint prop_id, const GValue *value, GParamSpec *pspec)
 {
-	HevSCGIServer * self = HEV_SCGI_SERVER(obj);
+	HevSCGIServer * self = HEV_SCGI_SERVER_CAST(obj);
 	HevSCGIServerPrivate * priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -228,7 +228,7 @@ static void hev_scgi_server_set_property(GObject *obj,
 static void hev_scgi_server_get_property(GObject *obj,
 			guint prop_id, GValue *value, GParamSpec *pspec)
 {
-	HevSCGIServer * self = HEV_SCGI_SERVER(obj);
+	HevSCGIServer * self = HEV_SCGI_SERVER_CAST(obj);
 	HevSCGIServerPrivate * priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -308,7 +308,7 @@ static gboolean socket_service_incoming_handler(GSocketService *service,
 			GSocketConnection *connection, GObject *source_object,
 			gpointer user_data)
 {
-	HevSCGIServer *self = HEV_SCGI_SERVER(user_data);
+	HevSCGIServer *self = HEV_SCGI_SERVER_CAST(user_data);
 	HevSCGIServerPrivate *priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -322,7 +322,7 @@ static gboolean socket_service_incoming_handler(GSocketService *service,
 static void scgi_connection_manager_new_task_handler(HevSCGIConnectionManager *connection_manager,
 			GObject *scgi_task, gpointer user_data)
 {
-	HevSCGIServer *self = HEV_SCGI_SERVER(user_data);
+	HevSCGIServer *self = HEV_SCGI_SERVER_CAST(user_data);
 	HevSCGIServerPrivate *priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);

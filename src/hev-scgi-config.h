@@ -17,6 +17,7 @@
 G_BEGIN_DECLS
 
 #define HEV_TYPE_SCGI_CONFIG	(hev_scgi_config_get_type())
+#define HEV_SCGI_CONFIG_CAST(obj)	((HevSCGIConfig *)obj)
 #define HEV_SCGI_CONFIG(obj)	(G_TYPE_CHECK_INSTANCE_CAST((obj), HEV_TYPE_SCGI_CONFIG, HevSCGIConfig))
 #define HEV_IS_SCGI_CONFIG(obj)	(G_TYPE_CHECK_INSTANCE_TYPE((obj), HEV_TYPE_SCGI_CONFIG))
 #define HEV_SCGI_CONFIG_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST((klass), HEV_TYPE_SCGI_CONFIG, HevSCGIConfigClass))

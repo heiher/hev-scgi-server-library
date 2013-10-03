@@ -16,6 +16,7 @@
 G_BEGIN_DECLS
 
 #define HEV_TYPE_SCGI_SERVER	(hev_scgi_server_get_type())
+#define HEV_SCGI_SERVER_CAST(obj)	((HevSCGIServer *)obj)
 #define HEV_SCGI_SERVER(obj)	(G_TYPE_CHECK_INSTANCE_CAST((obj), HEV_TYPE_SCGI_SERVER, HevSCGIServer))
 #define HEV_IS_SCGI_SERVER(obj)	(G_TYPE_CHECK_INSTANCE_TYPE((obj), HEV_TYPE_SCGI_SERVER))
 #define HEV_SCGI_SERVER_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST((klass), HEV_TYPE_SCGI_SERVER, HevSCGIServerClass))

@@ -43,7 +43,7 @@ static void hev_scgi_handler_module_dispose(GObject * obj)
 
 static void hev_scgi_handler_module_finalize(GObject * obj)
 {
-	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE(obj);
+	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE_CAST(obj);
 	HevSCGIHandlerModulePrivate * priv = HEV_SCGI_HANDLER_MODULE_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -72,7 +72,7 @@ static void hev_scgi_handler_module_constructed(GObject * obj)
 
 static gboolean hev_scgi_handler_module_load(GTypeModule *obj)
 {
-	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE(obj);
+	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE_CAST(obj);
 	HevSCGIHandlerModulePrivate * priv = HEV_SCGI_HANDLER_MODULE_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -97,7 +97,7 @@ static gboolean hev_scgi_handler_module_load(GTypeModule *obj)
 
 static void hev_scgi_handler_module_unload(GTypeModule *obj)
 {
-	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE(obj);
+	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE_CAST(obj);
 	HevSCGIHandlerModulePrivate * priv = HEV_SCGI_HANDLER_MODULE_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -110,7 +110,7 @@ static void hev_scgi_handler_module_unload(GTypeModule *obj)
 static void hev_scgi_handler_module_set_property(GObject *obj,
 			guint prop_id, const GValue *value, GParamSpec *pspec)
 {
-	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE(obj);
+	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE_CAST(obj);
 	HevSCGIHandlerModulePrivate * priv = HEV_SCGI_HANDLER_MODULE_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -129,7 +129,7 @@ static void hev_scgi_handler_module_set_property(GObject *obj,
 static void hev_scgi_handler_module_get_property(GObject *obj,
 			guint prop_id, GValue *value, GParamSpec *pspec)
 {
-	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE(obj);
+	HevSCGIHandlerModule * self = HEV_SCGI_HANDLER_MODULE_CAST(obj);
 	HevSCGIHandlerModulePrivate * priv = HEV_SCGI_HANDLER_MODULE_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);

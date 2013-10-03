@@ -28,7 +28,7 @@ G_DEFINE_TYPE(HevSCGITask, hev_scgi_task, G_TYPE_OBJECT);
 
 static void hev_scgi_task_dispose(GObject * obj)
 {
-	HevSCGITask * self = HEV_SCGI_TASK(obj);
+	HevSCGITask * self = HEV_SCGI_TASK_CAST(obj);
 	HevSCGITaskPrivate * priv = HEV_SCGI_TASK_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);

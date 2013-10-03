@@ -48,7 +48,7 @@ G_DEFINE_TYPE(HevSCGIRequest, hev_scgi_request, G_TYPE_OBJECT);
 
 static void hev_scgi_request_dispose(GObject * obj)
 {
-	HevSCGIRequest * self = HEV_SCGI_REQUEST(obj);
+	HevSCGIRequest * self = HEV_SCGI_REQUEST_CAST(obj);
 	HevSCGIRequestPrivate * priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -66,7 +66,7 @@ static void hev_scgi_request_dispose(GObject * obj)
 
 static void hev_scgi_request_finalize(GObject * obj)
 {
-	HevSCGIRequest * self = HEV_SCGI_REQUEST(obj);
+	HevSCGIRequest * self = HEV_SCGI_REQUEST_CAST(obj);
 	HevSCGIRequestPrivate * priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -311,7 +311,7 @@ static void hev_scgi_request_header_buffer_alloc(HevSCGIRequest *self,
 static void hev_scgi_request_input_stream_read_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data)
 {
-	HevSCGIRequest *self = HEV_SCGI_REQUEST(user_data);
+	HevSCGIRequest *self = HEV_SCGI_REQUEST_CAST(user_data);
 	HevSCGIRequestPrivate *priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
 	gssize size = 0;
 	GError *error = NULL;

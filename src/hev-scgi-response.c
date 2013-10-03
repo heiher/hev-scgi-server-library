@@ -42,7 +42,7 @@ G_DEFINE_TYPE(HevSCGIResponse, hev_scgi_response, G_TYPE_OBJECT);
 
 static void hev_scgi_response_dispose(GObject * obj)
 {
-	HevSCGIResponse * self = HEV_SCGI_RESPONSE(obj);
+	HevSCGIResponse * self = HEV_SCGI_RESPONSE_CAST(obj);
 	HevSCGIResponsePrivate * priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -60,7 +60,7 @@ static void hev_scgi_response_dispose(GObject * obj)
 
 static void hev_scgi_response_finalize(GObject * obj)
 {
-	HevSCGIResponse * self = HEV_SCGI_RESPONSE(obj);
+	HevSCGIResponse * self = HEV_SCGI_RESPONSE_CAST(obj);
 	HevSCGIResponsePrivate * priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -327,7 +327,7 @@ gboolean hev_scgi_response_write_header_finish(HevSCGIResponse *self, GAsyncResu
 static void hev_scgi_response_output_stream_write_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data)
 {
-	HevSCGIResponse *self = HEV_SCGI_RESPONSE(user_data);
+	HevSCGIResponse *self = HEV_SCGI_RESPONSE_CAST(user_data);
 	HevSCGIResponsePrivate *priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
 	gssize size = 0;
 	GError *error = NULL;

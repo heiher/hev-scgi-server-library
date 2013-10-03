@@ -47,7 +47,7 @@ static void hev_scgi_config_dispose(GObject * obj)
 
 static void hev_scgi_config_finalize(GObject * obj)
 {
-	HevSCGIConfig * self = HEV_SCGI_CONFIG(obj);
+	HevSCGIConfig * self = HEV_SCGI_CONFIG_CAST(obj);
 	HevSCGIConfigPrivate * priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -81,7 +81,7 @@ static GObject * hev_scgi_config_constructor(GType type, guint n, GObjectConstru
 
 static void hev_scgi_config_constructed(GObject * obj)
 {
-	HevSCGIConfig * self = HEV_SCGI_CONFIG(obj);
+	HevSCGIConfig * self = HEV_SCGI_CONFIG_CAST(obj);
 	HevSCGIConfigPrivate * priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 	gchar *conf_dir = NULL, *config_file_path = NULL;
 	GError *error = NULL;
@@ -132,7 +132,7 @@ static void hev_scgi_config_constructed(GObject * obj)
 static void hev_scgi_config_set_property(GObject *obj,
 			guint prop_id, const GValue *value, GParamSpec *pspec)
 {
-	HevSCGIConfig * self = HEV_SCGI_CONFIG(obj);
+	HevSCGIConfig * self = HEV_SCGI_CONFIG_CAST(obj);
 	HevSCGIConfigPrivate * priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -151,7 +151,7 @@ static void hev_scgi_config_set_property(GObject *obj,
 static void hev_scgi_config_get_property(GObject *obj,
 			guint prop_id, GValue *value, GParamSpec *pspec)
 {
-	HevSCGIConfig * self = HEV_SCGI_CONFIG(obj);
+	HevSCGIConfig * self = HEV_SCGI_CONFIG_CAST(obj);
 	HevSCGIConfigPrivate * priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);

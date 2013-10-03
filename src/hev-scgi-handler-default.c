@@ -52,7 +52,7 @@ static void hev_scgi_handler_default_dispose(GObject * obj)
 
 static void hev_scgi_handler_default_finalize(GObject * obj)
 {
-	HevSCGIHandlerDefault *self = HEV_SCGI_HANDLER_DEFAULT(obj);
+	HevSCGIHandlerDefault *self = HEV_SCGI_HANDLER_DEFAULT_CAST(obj);
 	HevSCGIHandlerDefaultPrivate *priv = HEV_SCGI_HANDLER_DEFAULT_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -169,7 +169,7 @@ static void hev_scgi_response_write_header_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data)
 {
 	HevSCGITask *scgi_task = HEV_SCGI_TASK(user_data);
-	HevSCGIHandlerDefault *self = HEV_SCGI_HANDLER_DEFAULT(
+	HevSCGIHandlerDefault *self = HEV_SCGI_HANDLER_DEFAULT_CAST(
 				hev_scgi_task_get_handler(scgi_task));
 	HevSCGIHandlerDefaultPrivate *priv = HEV_SCGI_HANDLER_DEFAULT_GET_PRIVATE(self);
 	GObject *scgi_response = NULL;

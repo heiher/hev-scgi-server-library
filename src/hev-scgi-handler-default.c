@@ -114,8 +114,8 @@ static void hev_scgi_handler_default_init(HevSCGIHandlerDefault * self)
 	g_string_printf(priv->html, "<html>\r\n<head><title>404 Not Found</title></head>\r\n"
 				"<body bgcolor=\"white\">\r\n<center><h1>404 Not Found</h1></center>\r\n"
 				"<hr><center>%s/%s</center>\r\n</body>\r\n</html>",
-				hev_scgi_handler_get_name(HEV_SCGI_HANDLER(self)),
-				hev_scgi_handler_get_version(HEV_SCGI_HANDLER(self)));
+				hev_scgi_handler_get_name(HEV_SCGI_HANDLER_CAST(self)),
+				hev_scgi_handler_get_version(HEV_SCGI_HANDLER_CAST(self)));
 }
 
 GObject * hev_scgi_handler_default_new(void)

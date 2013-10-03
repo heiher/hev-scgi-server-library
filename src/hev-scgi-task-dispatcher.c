@@ -154,11 +154,11 @@ static void hev_scgi_task_dispatcher_dispatch(HevSCGITaskDispatcher *self,
 	{
 		const gchar *pattern = NULL;
 
-		pattern = hev_scgi_handler_get_pattern(HEV_SCGI_HANDLER(sl->data));
+		pattern = hev_scgi_handler_get_pattern(HEV_SCGI_HANDLER_CAST(sl->data));
 		if(g_regex_match_simple(pattern, request_uri, 0, 0))
 		{
 			hev_scgi_task_set_handler(HEV_SCGI_TASK(scgi_task), G_OBJECT(sl->data));
-			hev_scgi_handler_handle(HEV_SCGI_HANDLER(sl->data), scgi_task);
+			hev_scgi_handler_handle(HEV_SCGI_HANDLER_CAST(sl->data), scgi_task);
 			break;
 		}
 	}
@@ -180,8 +180,8 @@ void hev_scgi_task_dispatcher_add_handler(HevSCGITaskDispatcher *self,
 	priv->handler_slist = g_slist_append(priv->handler_slist,
 				scgi_handler);
 	g_message("Task Dispatcher: AddHandler[%s, %s, %s]",
-				hev_scgi_handler_get_alias(HEV_SCGI_HANDLER(scgi_handler)),
-				hev_scgi_handler_get_name(HEV_SCGI_HANDLER(scgi_handler)),
-				hev_scgi_handler_get_version(HEV_SCGI_HANDLER(scgi_handler)));
+				hev_scgi_handler_get_alias(HEV_SCGI_HANDLER_CAST(scgi_handler)),
+				hev_scgi_handler_get_name(HEV_SCGI_HANDLER_CAST(scgi_handler)),
+				hev_scgi_handler_get_version(HEV_SCGI_HANDLER_CAST(scgi_handler)));
 }
 

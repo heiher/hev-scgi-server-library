@@ -35,8 +35,6 @@ struct _HevSCGIConnectionManager
 struct _HevSCGIConnectionManagerClass
 {
 	GSocketServiceClass parent_class;
-
-	void (*new_task)(HevSCGIConnectionManager *self, GObject *task);
 };
 
 GType hev_scgi_connection_manager_get_type(void);

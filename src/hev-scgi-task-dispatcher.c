@@ -100,8 +100,6 @@ void hev_scgi_task_dispatcher_push(HevSCGITaskDispatcher *self,
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_object_ref(scgi_task);
-
 	g_object_set_data(scgi_task, "dispatcher", self);
 	scgi_request = hev_scgi_task_get_request(HEV_SCGI_TASK(scgi_task));
 	_hev_scgi_request_read_header_async(HEV_SCGI_REQUEST(scgi_request),

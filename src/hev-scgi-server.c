@@ -12,6 +12,9 @@
 
 #include "hev-scgi-server.h"
 #include "hev-scgi-config.h"
+#include "hev-scgi-task.h"
+#include "hev-scgi-request.h"
+#include "hev-scgi-response.h"
 #include "hev-scgi-connection-manager.h"
 #include "hev-scgi-task-dispatcher.h"
 #include "hev-scgi-handler-module.h"
@@ -26,8 +29,8 @@ enum
 
 static GParamSpec *hev_scgi_server_properties[N_PROPERTIES] = { NULL };
 
-static void scgi_connection_manager_new_task_handler(HevSCGIConnectionManager *connection_manager,
-			GObject *scgi_task, gpointer user_data);
+static gboolean scgi_connection_manager_incoming_handler(GSocketService *service,
+			GSocketConnection *connection, GObject *source_object, gpointer user_data);
 
 #define HEV_SCGI_SERVER_GET_PRIVATE(obj)	(G_TYPE_INSTANCE_GET_PRIVATE((obj), HEV_TYPE_SCGI_SERVER, HevSCGIServerPrivate))
 
@@ -137,8 +140,8 @@ static void hev_scgi_server_constructed(GObject * obj)
 		g_error_free(error);
 	}
 
-	g_signal_connect(G_OBJECT(priv->scgi_connection_manager), "new-task",
-				G_CALLBACK(scgi_connection_manager_new_task_handler), self);
+	g_signal_connect(G_OBJECT(priv->scgi_connection_manager), "incoming",
+				G_CALLBACK(scgi_connection_manager_incoming_handler), self);
 
 	priv->scgi_task_dispatcher = hev_scgi_task_dispatcher_new();
 	if(!priv->scgi_task_dispatcher)
@@ -287,15 +290,43 @@ void hev_scgi_server_stop(HevSCGIServer *self)
 	g_socket_service_stop(G_SOCKET_SERVICE(priv->scgi_connection_manager));
 }
 
-static void scgi_connection_manager_new_task_handler(HevSCGIConnectionManager *connection_manager,
-			GObject *scgi_task, gpointer user_data)
+static gboolean scgi_connection_manager_incoming_handler(GSocketService *service,
+			GSocketConnection *connection, GObject *source_object, gpointer user_data)
 {
 	HevSCGIServer *self = HEV_SCGI_SERVER_CAST(user_data);
 	HevSCGIServerPrivate *priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
+	GObject *scgi_task = NULL;
+	GObject *scgi_request = NULL;
+	GObject *scgi_response = NULL;
+	GInputStream *input_stream = NULL;
+	GOutputStream *output_stream = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
+	scgi_task = _hev_scgi_task_new();
+	if(!scgi_task)
+	{
+		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+		return FALSE;
+	}
+
+	_hev_scgi_task_set_socket_connection(HEV_SCGI_TASK(scgi_task),
+				G_OBJECT(connection));
+
+	scgi_request = hev_scgi_task_get_request(HEV_SCGI_TASK(scgi_task));
+	scgi_response = hev_scgi_task_get_response(HEV_SCGI_TASK(scgi_task));
+
+	input_stream = g_io_stream_get_input_stream(G_IO_STREAM(connection));
+	output_stream = g_io_stream_get_output_stream(G_IO_STREAM(connection));
+
+	_hev_scgi_request_set_input_stream(HEV_SCGI_REQUEST(scgi_request),
+				input_stream);
+	_hev_scgi_response_set_output_stream(HEV_SCGI_RESPONSE(scgi_response),
+				output_stream);
+
 	hev_scgi_task_dispatcher_push(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),
 				scgi_task);
+
+	return TRUE;
 }
 

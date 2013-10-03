@@ -29,12 +29,12 @@ typedef struct _HevSCGIConnectionManagerClass HevSCGIConnectionManagerClass;
 
 struct _HevSCGIConnectionManager
 {
-	GObject parent_instance;
+	GSocketService parent_instance;
 };
 
 struct _HevSCGIConnectionManagerClass
 {
-	GObjectClass parent_class;
+	GSocketServiceClass parent_class;
 
 	void (*new_task)(HevSCGIConnectionManager *self, GObject *task);
 };
@@ -42,8 +42,6 @@ struct _HevSCGIConnectionManagerClass
 GType hev_scgi_connection_manager_get_type(void);
 
 GObject * hev_scgi_connection_manager_new(void);
-void hev_scgi_connection_manager_take_over(HevSCGIConnectionManager *self,
-			GSocketConnection *connection);
 
 G_END_DECLS
 

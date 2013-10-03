@@ -21,6 +21,8 @@ enum
 
 static guint hev_scgi_connection_manager_signals[LAST_SIGNAL] = { 0 };
 
+static gboolean hev_scgi_connection_manager_real_incoming(GSocketService *service,
+			GSocketConnection *connection, GObject *source_object);
 static void hev_scgi_connection_manager_real_new_task(HevSCGIConnectionManager *self,
 			GObject *scgi_task);
 
@@ -33,7 +35,7 @@ struct _HevSCGIConnectionManagerPrivate
 	gchar c;
 };
 
-G_DEFINE_TYPE(HevSCGIConnectionManager, hev_scgi_connection_manager, G_TYPE_OBJECT);
+G_DEFINE_TYPE(HevSCGIConnectionManager, hev_scgi_connection_manager, G_TYPE_SOCKET_SERVICE);
 
 static void hev_scgi_connection_manager_dispose(GObject * obj)
 {
@@ -65,6 +67,7 @@ static void hev_scgi_connection_manager_constructed(GObject * obj)
 static void hev_scgi_connection_manager_class_init(HevSCGIConnectionManagerClass * klass)
 {
 	GObjectClass * obj_class = G_OBJECT_CLASS(klass);
+	GSocketServiceClass *socket_service_class = G_SOCKET_SERVICE_CLASS(klass);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
@@ -72,6 +75,8 @@ static void hev_scgi_connection_manager_class_init(HevSCGIConnectionManagerClass
 	obj_class->constructed = hev_scgi_connection_manager_constructed;
 	obj_class->dispose = hev_scgi_connection_manager_dispose;
 	obj_class->finalize = hev_scgi_connection_manager_finalize;
+
+	socket_service_class->incoming = hev_scgi_connection_manager_real_incoming;
 
 	klass->new_task = hev_scgi_connection_manager_real_new_task;
 
@@ -96,9 +101,10 @@ GObject * hev_scgi_connection_manager_new(void)
 	return g_object_new(HEV_TYPE_SCGI_CONNECTION_MANAGER, NULL);
 }
 
-void hev_scgi_connection_manager_take_over(HevSCGIConnectionManager *self,
-			GSocketConnection *connection)
+static gboolean hev_scgi_connection_manager_real_incoming(GSocketService *service,
+			GSocketConnection *connection, GObject *source_object)
 {
+	HevSCGIConnectionManager *self = HEV_SCGI_CONNECTION_MANAGER_CAST(service);
 	HevSCGIConnectionManagerPrivate *priv = NULL;
 	GObject *scgi_task = NULL;
 	GObject *scgi_request = NULL;
@@ -108,12 +114,12 @@ void hev_scgi_connection_manager_take_over(HevSCGIConnectionManager *self,
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_if_fail(HEV_IS_SCGI_CONNECTION_MANAGER(self));
-	priv = HEV_SCGI_CONNECTION_MANAGER_GET_PRIVATE(self);
-
 	scgi_task = hev_scgi_task_new();
 	if(!scgi_task)
-	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+	{
+		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+		return FALSE;
+	}
 
 	hev_scgi_task_set_socket_connection(HEV_SCGI_TASK(scgi_task),
 				G_OBJECT(connection));
@@ -131,6 +137,8 @@ void hev_scgi_connection_manager_take_over(HevSCGIConnectionManager *self,
 
 	g_signal_emit(G_OBJECT(self), hev_scgi_connection_manager_signals[NEW_TASK],
 				0, scgi_task);
+
+	return TRUE;
 }
 
 static void hev_scgi_connection_manager_real_new_task(HevSCGIConnectionManager *self,

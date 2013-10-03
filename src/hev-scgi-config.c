@@ -81,9 +81,52 @@ static GObject * hev_scgi_config_constructor(GType type, guint n, GObjectConstru
 
 static void hev_scgi_config_constructed(GObject * obj)
 {
+	HevSCGIConfig * self = HEV_SCGI_CONFIG(obj);
+	HevSCGIConfigPrivate * priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
+	gchar *conf_dir = NULL, *config_file_path = NULL;
+	GError *error = NULL;
+
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	G_OBJECT_CLASS(hev_scgi_config_parent_class)->constructed(obj);
+
+	/* main */
+	priv->key_file_main = g_key_file_new();
+	if(!priv->key_file_main)
+	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	conf_dir = priv->conf_dir ? : "conf";
+
+	config_file_path = g_build_path(G_DIR_SEPARATOR_S,
+				conf_dir, HEV_SCGI_CONFIG_FILE_NAME_MAIN, NULL);
+	g_debug("Config File Path : %s", config_file_path);
+	if(!g_key_file_load_from_file(priv->key_file_main, config_file_path,
+					G_KEY_FILE_NONE, &error))
+	{
+		g_critical("%s:%d[%s]=>(%s)", __FILE__, __LINE__, __FUNCTION__,
+					error->message);
+		g_error_free(error);
+	}
+
+	g_free(config_file_path);
+
+	/* modules */
+	priv->key_file_modules = g_key_file_new();
+	if(!priv->key_file_modules)
+	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	config_file_path = g_build_path(G_DIR_SEPARATOR_S,
+				conf_dir, HEV_SCGI_CONFIG_FILE_NAME_MODULES, NULL);
+	g_debug("Config File Path : %s", config_file_path);
+	if(!g_key_file_load_from_file(priv->key_file_modules, config_file_path,
+					G_KEY_FILE_NONE, &error))
+	{
+		g_critical("%s:%d[%s]=>(%s)", __FILE__, __LINE__, __FUNCTION__,
+					error->message);
+		g_error_free(error);
+	}
+
+	g_free(config_file_path);
 }
 
 static void hev_scgi_config_set_property(GObject *obj,
@@ -151,49 +194,7 @@ static void hev_scgi_config_class_init(HevSCGIConfigClass * klass)
 
 static void hev_scgi_config_init(HevSCGIConfig * self)
 {
-	HevSCGIConfigPrivate * priv = HEV_SCGI_CONFIG_GET_PRIVATE(self);
-	gchar *conf_dir = NULL, *config_file_path = NULL;
-	GError *error = NULL;
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	/* main */
-	priv->key_file_main = g_key_file_new();
-	if(!priv->key_file_main)
-	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	conf_dir = priv->conf_dir ? : "conf";
-
-	config_file_path = g_build_path(G_DIR_SEPARATOR_S,
-				conf_dir, HEV_SCGI_CONFIG_FILE_NAME_MAIN, NULL);
-	g_debug("Config File Path : %s", config_file_path);
-	if(!g_key_file_load_from_file(priv->key_file_main, config_file_path,
-					G_KEY_FILE_NONE, &error))
-	{
-		g_critical("%s:%d[%s]=>(%s)", __FILE__, __LINE__, __FUNCTION__,
-					error->message);
-		g_error_free(error);
-	}
-
-	g_free(config_file_path);
-
-	/* modules */
-	priv->key_file_modules = g_key_file_new();
-	if(!priv->key_file_modules)
-	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	config_file_path = g_build_path(G_DIR_SEPARATOR_S,
-				conf_dir, HEV_SCGI_CONFIG_FILE_NAME_MODULES, NULL);
-	g_debug("Config File Path : %s", config_file_path);
-	if(!g_key_file_load_from_file(priv->key_file_modules, config_file_path,
-					G_KEY_FILE_NONE, &error))
-	{
-		g_critical("%s:%d[%s]=>(%s)", __FILE__, __LINE__, __FUNCTION__,
-					error->message);
-		g_error_free(error);
-	}
-
-	g_free(config_file_path);
 }
 
 GObject * hev_scgi_config_new(const gchar *conf_dir)

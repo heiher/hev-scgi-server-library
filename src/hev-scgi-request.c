@@ -138,7 +138,7 @@ static void hev_scgi_request_init(HevSCGIRequest * self)
 }
 
 /**
- * hev_scgi_request_new
+ * _hev_scgi_request_new
  *
  * Creates a request.
  *
@@ -146,14 +146,14 @@ static void hev_scgi_request_init(HevSCGIRequest * self)
  *
  * Since: 0.0.1
  */
-GObject * hev_scgi_request_new(void)
+GObject * _hev_scgi_request_new(void)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	return g_object_new(HEV_TYPE_SCGI_REQUEST, NULL);
 }
 
 /**
- * hev_scgi_request_get_input_stream
+ * _hev_scgi_request_set_input_stream
  * @self: A #HevSCGIRequest
  * @input_stream: A #GInputStream
  *
@@ -161,7 +161,7 @@ GObject * hev_scgi_request_new(void)
  *
  * Since: 0.0.1
  */
-void hev_scgi_request_set_input_stream(HevSCGIRequest *self,
+void _hev_scgi_request_set_input_stream(HevSCGIRequest *self,
 			GInputStream *input_stream)
 {
 	HevSCGIRequestPrivate *priv = NULL;
@@ -201,7 +201,7 @@ GInputStream * hev_scgi_request_get_input_stream(HevSCGIRequest *self)
 }
 
 /**
- * hev_scgi_request_read_header_async
+ * _hev_scgi_request_read_header_async
  * @self: A #HevSCGIRequest
  * @cancellable: (allow-none): optional #GCancellable object, %NULL to ignore.
  * @callback: (scope async): callback to call when the request is satisfied
@@ -211,7 +211,7 @@ GInputStream * hev_scgi_request_get_input_stream(HevSCGIRequest *self)
  *
  * Since: 0.0.1
  */
-void hev_scgi_request_read_header_async(HevSCGIRequest *self,
+void _hev_scgi_request_read_header_async(HevSCGIRequest *self,
 			GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data)
 {
 	HevSCGIRequestPrivate *priv = NULL;
@@ -227,7 +227,7 @@ void hev_scgi_request_read_header_async(HevSCGIRequest *self,
 
 	/* Simple async result */
 	simple = g_simple_async_result_new(G_OBJECT(self),
-				callback, user_data, hev_scgi_request_read_header_async);
+				callback, user_data, _hev_scgi_request_read_header_async);
 	g_simple_async_result_set_check_cancellable(simple, cancellable);
 
 	priv->header_status = HEADER_STATUS_READING;
@@ -242,7 +242,7 @@ void hev_scgi_request_read_header_async(HevSCGIRequest *self,
 }
 
 /**
- * hev_scgi_request_read_header_finish
+ * _hev_scgi_request_read_header_finish
  * @self: A #HevSCGIRequest
  * @res: A #GAsyncResult
  * @error: A #GError location to store the error occurring, or %NULL to ignore.
@@ -251,7 +251,7 @@ void hev_scgi_request_read_header_async(HevSCGIRequest *self,
  *
  * Returns: %TRUE if the request was read successfully.
  */
-gboolean hev_scgi_request_read_header_finish(HevSCGIRequest *self, GAsyncResult *res,
+gboolean _hev_scgi_request_read_header_finish(HevSCGIRequest *self, GAsyncResult *res,
 			GError **error)
 {
 	HevSCGIRequestPrivate *priv = NULL;
@@ -262,7 +262,7 @@ gboolean hev_scgi_request_read_header_finish(HevSCGIRequest *self, GAsyncResult 
 	priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
 
 	g_return_val_if_fail(g_simple_async_result_is_valid(res,
-					G_OBJECT(self), hev_scgi_request_read_header_async),
+					G_OBJECT(self), _hev_scgi_request_read_header_async),
 				FALSE);
 
 	if(g_simple_async_result_propagate_error(G_SIMPLE_ASYNC_RESULT(res),

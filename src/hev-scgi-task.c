@@ -94,17 +94,17 @@ static void hev_scgi_task_init(HevSCGITask * self)
 	
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	
-	priv->scgi_request = hev_scgi_request_new();
+	priv->scgi_request = _hev_scgi_request_new();
 	if(!priv->scgi_request)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	priv->scgi_response = hev_scgi_response_new();
+	priv->scgi_response = _hev_scgi_response_new();
 	if(!priv->scgi_response)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 }
 
 /**
- * hev_scgi_task_new
+ * _hev_scgi_task_new
  *
  * Creates a task.
  *
@@ -112,7 +112,7 @@ static void hev_scgi_task_init(HevSCGITask * self)
  *
  * Since: 0.0.1
  */
-GObject * hev_scgi_task_new(void)
+GObject * _hev_scgi_task_new(void)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	return g_object_new(HEV_TYPE_SCGI_TASK, NULL);
@@ -163,7 +163,7 @@ GObject * hev_scgi_task_get_response(HevSCGITask *self)
 }
 
 /**
- * hev_scgi_task_set_socket_connection
+ * _hev_scgi_task_set_socket_connection
  * @self: A #HevSCGITask
  * @connection: A #GSocketConnection.
  *
@@ -171,7 +171,7 @@ GObject * hev_scgi_task_get_response(HevSCGITask *self)
  *
  * Since: 0.0.1
  */
-void hev_scgi_task_set_socket_connection(HevSCGITask *self,
+void _hev_scgi_task_set_socket_connection(HevSCGITask *self,
 			GObject *connection)
 {
 	HevSCGITaskPrivate *priv = NULL;
@@ -211,7 +211,7 @@ GObject * hev_scgi_task_get_socket_connection(HevSCGITask *self)
 }
 
 /**
- * hev_scgi_task_set_handler
+ * _hev_scgi_task_set_handler
  * @self: A #HevSCGITask
  * @handler: A #HevSCGIHandler.
  *
@@ -219,7 +219,7 @@ GObject * hev_scgi_task_get_socket_connection(HevSCGITask *self)
  *
  * Since: 0.0.1
  */
-void hev_scgi_task_set_handler(HevSCGITask *self, GObject *handler)
+void _hev_scgi_task_set_handler(HevSCGITask *self, GObject *handler)
 {
 	HevSCGITaskPrivate *priv = NULL;
 

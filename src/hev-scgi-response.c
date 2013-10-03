@@ -125,7 +125,7 @@ static void hev_scgi_response_init(HevSCGIResponse * self)
 }
 
 /**
- * hev_scgi_response_new
+ * _hev_scgi_response_new
  *
  * Creates a response.
  *
@@ -133,14 +133,14 @@ static void hev_scgi_response_init(HevSCGIResponse * self)
  *
  * Since: 0.0.1
  */
-GObject * hev_scgi_response_new(void)
+GObject * _hev_scgi_response_new(void)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	return g_object_new(HEV_TYPE_SCGI_RESPONSE, NULL);
 }
 
 /**
- * hev_scgi_response_set_output_stream
+ * _hev_scgi_response_set_output_stream
  * @self: A #HevSCGIResponse
  * @output_stream: A #GOutputStream
  *
@@ -148,7 +148,7 @@ GObject * hev_scgi_response_new(void)
  *
  * Since: 0.0.1
  */
-void hev_scgi_response_set_output_stream(HevSCGIResponse *self,
+void _hev_scgi_response_set_output_stream(HevSCGIResponse *self,
 			GOutputStream *output_stream)
 {
 	HevSCGIResponsePrivate *priv = NULL;

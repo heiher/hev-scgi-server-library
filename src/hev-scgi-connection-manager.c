@@ -114,14 +114,14 @@ static gboolean hev_scgi_connection_manager_real_incoming(GSocketService *servic
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	scgi_task = hev_scgi_task_new();
+	scgi_task = _hev_scgi_task_new();
 	if(!scgi_task)
 	{
 		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 		return FALSE;
 	}
 
-	hev_scgi_task_set_socket_connection(HEV_SCGI_TASK(scgi_task),
+	_hev_scgi_task_set_socket_connection(HEV_SCGI_TASK(scgi_task),
 				G_OBJECT(connection));
 
 	scgi_request = hev_scgi_task_get_request(HEV_SCGI_TASK(scgi_task));
@@ -130,9 +130,9 @@ static gboolean hev_scgi_connection_manager_real_incoming(GSocketService *servic
 	input_stream = g_io_stream_get_input_stream(G_IO_STREAM(connection));
 	output_stream = g_io_stream_get_output_stream(G_IO_STREAM(connection));
 
-	hev_scgi_request_set_input_stream(HEV_SCGI_REQUEST(scgi_request),
+	_hev_scgi_request_set_input_stream(HEV_SCGI_REQUEST(scgi_request),
 				input_stream);
-	hev_scgi_response_set_output_stream(HEV_SCGI_RESPONSE(scgi_response),
+	_hev_scgi_response_set_output_stream(HEV_SCGI_RESPONSE(scgi_response),
 				output_stream);
 
 	g_signal_emit(G_OBJECT(self), hev_scgi_connection_manager_signals[NEW_TASK],

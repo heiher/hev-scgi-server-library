@@ -39,16 +39,17 @@ struct _HevSCGIResponseClass
 
 GType hev_scgi_response_get_type(void);
 
-GObject * hev_scgi_response_new(void);
-void hev_scgi_response_set_output_stream(HevSCGIResponse *self,
+GObject * _hev_scgi_response_new(void);
+void _hev_scgi_response_set_output_stream(HevSCGIResponse *self,
 			GOutputStream *output_stream);
-GOutputStream * hev_scgi_response_get_output_stream(HevSCGIResponse *self);
+
+GHashTable * hev_scgi_response_get_header_hash_table(HevSCGIResponse *self);
 gboolean hev_scgi_response_write_header(HevSCGIResponse *self, GError **error);
 void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 			GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data);
 gboolean hev_scgi_response_write_header_finish(HevSCGIResponse *self, GAsyncResult *res,
 			GError **error);
-GHashTable * hev_scgi_response_get_header_hash_table(HevSCGIResponse *self);
+GOutputStream * hev_scgi_response_get_output_stream(HevSCGIResponse *self);
 
 G_END_DECLS
 

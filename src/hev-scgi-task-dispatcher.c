@@ -108,7 +108,7 @@ void hev_scgi_task_dispatcher_push(HevSCGITaskDispatcher *self,
 
 	g_object_set_data(scgi_task, "dispatcher", self);
 	scgi_request = hev_scgi_task_get_request(HEV_SCGI_TASK(scgi_task));
-	hev_scgi_request_read_header_async(HEV_SCGI_REQUEST(scgi_request),
+	_hev_scgi_request_read_header_async(HEV_SCGI_REQUEST(scgi_request),
 				NULL, hev_scgi_request_read_header_async_handler, scgi_task);
 }
 
@@ -117,7 +117,7 @@ static void hev_scgi_request_read_header_async_handler(GObject *source_object,
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	if(hev_scgi_request_read_header_finish(HEV_SCGI_REQUEST(source_object),
+	if(_hev_scgi_request_read_header_finish(HEV_SCGI_REQUEST(source_object),
 					res, NULL))
 	{
 		GObject *scgi_task = user_data;
@@ -157,7 +157,7 @@ static void hev_scgi_task_dispatcher_dispatch(HevSCGITaskDispatcher *self,
 		pattern = hev_scgi_handler_get_pattern(HEV_SCGI_HANDLER_CAST(sl->data));
 		if(g_regex_match_simple(pattern, request_uri, 0, 0))
 		{
-			hev_scgi_task_set_handler(HEV_SCGI_TASK(scgi_task), G_OBJECT(sl->data));
+			_hev_scgi_task_set_handler(HEV_SCGI_TASK(scgi_task), G_OBJECT(sl->data));
 			hev_scgi_handler_handle(HEV_SCGI_HANDLER_CAST(sl->data), scgi_task);
 			break;
 		}

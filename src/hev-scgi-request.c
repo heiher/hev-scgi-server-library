@@ -231,14 +231,13 @@ void _hev_scgi_request_read_header_async(HevSCGIRequest *self,
 	g_simple_async_result_set_check_cancellable(simple, cancellable);
 
 	priv->header_status = HEADER_STATUS_READING;
-	g_object_set_data(G_OBJECT(self), "simple", simple);
 	hev_scgi_request_header_buffer_alloc(self, 4096);
 
 	priv->header_size = 16;
 	g_input_stream_read_async(priv->input_stream,
 				priv->header_buffer, priv->header_size, 0, NULL,
 				hev_scgi_request_input_stream_read_async_handler,
-				self);
+				simple);
 }
 
 /**
@@ -299,19 +298,22 @@ static void hev_scgi_request_header_buffer_alloc(HevSCGIRequest *self,
 static void hev_scgi_request_input_stream_read_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data)
 {
-	HevSCGIRequest *self = HEV_SCGI_REQUEST_CAST(user_data);
+	GSimpleAsyncResult *simple = G_SIMPLE_ASYNC_RESULT(user_data);
+	GObject *request = g_async_result_get_source_object(G_ASYNC_RESULT(simple));
+	HevSCGIRequest *self = HEV_SCGI_REQUEST_CAST(request);
 	HevSCGIRequestPrivate *priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
 	gssize size = 0;
 	GError *error = NULL;
-	GSimpleAsyncResult *simple = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	/* Unref 'request' get from g_async_result_get_source_object */
+	g_object_unref(request);
 
 	size = g_input_stream_read_finish(G_INPUT_STREAM(source_object),
 				res, &error);
 	priv->header_buffer_handle_size += size;
 
-	simple = g_object_get_data(G_OBJECT(self), "simple");
 	/* Call callback when connection closed by remote or error */
 	if(0 >= size)
 	{
@@ -333,7 +335,7 @@ static void hev_scgi_request_input_stream_read_async_handler(GObject *source_obj
 					priv->header_size-priv->header_buffer_handle_size,
 					0, NULL,
 					hev_scgi_request_input_stream_read_async_handler,
-					self);
+					simple);
 		return;
 	}
 
@@ -360,7 +362,7 @@ static void hev_scgi_request_input_stream_read_async_handler(GObject *source_obj
 							priv->header_size-priv->header_buffer_handle_size,
 							0, NULL,
 							hev_scgi_request_input_stream_read_async_handler,
-							self);
+							simple);
 				return;
 			}
 		}

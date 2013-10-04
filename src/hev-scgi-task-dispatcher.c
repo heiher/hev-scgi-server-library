@@ -15,7 +15,14 @@
 
 #define HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(obj)	(G_TYPE_INSTANCE_GET_PRIVATE((obj), HEV_TYPE_SCGI_TASK_DISPATCHER, HevSCGITaskDispatcherPrivate))
 
+typedef struct _HevClosure0 HevClosure0;
 typedef struct _HevSCGITaskDispatcherPrivate HevSCGITaskDispatcherPrivate;
+
+struct _HevClosure0
+{
+	GObject *task;
+	HevSCGITaskDispatcher *dispatcher;
+};
 
 struct _HevSCGITaskDispatcherPrivate
 {
@@ -97,13 +104,16 @@ void hev_scgi_task_dispatcher_push(HevSCGITaskDispatcher *self,
 {
 	HevSCGITaskDispatcherPrivate * priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 	GObject *scgi_request = NULL;
+	HevClosure0 *closure = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_object_set_data(scgi_task, "dispatcher", self);
+	closure = g_slice_new(HevClosure0);
+	closure->task = scgi_task;
+	closure->dispatcher = self;
 	scgi_request = hev_scgi_task_get_request(HEV_SCGI_TASK(scgi_task));
 	_hev_scgi_request_read_header_async(HEV_SCGI_REQUEST(scgi_request),
-				NULL, hev_scgi_request_read_header_async_handler, scgi_task);
+				NULL, hev_scgi_request_read_header_async_handler, closure);
 }
 
 static void hev_scgi_request_read_header_async_handler(GObject *source_object,
@@ -114,12 +124,14 @@ static void hev_scgi_request_read_header_async_handler(GObject *source_object,
 	if(_hev_scgi_request_read_header_finish(HEV_SCGI_REQUEST(source_object),
 					res, NULL))
 	{
-		GObject *scgi_task = user_data;
+		HevClosure0 *closure = user_data;
 		HevSCGITaskDispatcher *self = NULL;
 		
-		self = HEV_SCGI_TASK_DISPATCHER_CAST(g_object_get_data(scgi_task, "dispatcher"));
+		self = HEV_SCGI_TASK_DISPATCHER_CAST(closure->dispatcher);
 
-		hev_scgi_task_dispatcher_dispatch(self, scgi_task);
+		hev_scgi_task_dispatcher_dispatch(self, closure->task);
+
+		g_slice_free(HevClosure0, closure);
 	}
 }
 

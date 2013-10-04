@@ -270,7 +270,6 @@ void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 	g_simple_async_result_set_check_cancellable(simple, cancellable);
 
 	priv->header_status = HEADER_STATUS_WRITING;
-	g_object_set_data(G_OBJECT(self), "simple", simple);
 	g_hash_table_iter_init(&priv->header_hash_table_iter,
 				priv->header_hash_table);
 	if(g_hash_table_iter_next(&priv->header_hash_table_iter,
@@ -281,14 +280,14 @@ void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 		g_output_stream_write_async(priv->output_stream,
 					priv->header_buffer, strlen(priv->header_buffer), 0, NULL,
 					hev_scgi_response_output_stream_write_async_handler,
-					self);
+					simple);
 	}
 	else
 	{
 		g_output_stream_write_async(priv->output_stream,
 					"\r\n", 2, 0, NULL,
 					hev_scgi_response_output_stream_write_async_handler,
-					self);
+					simple);
 		priv->last_write = TRUE;
 	}
 }
@@ -327,19 +326,22 @@ gboolean hev_scgi_response_write_header_finish(HevSCGIResponse *self, GAsyncResu
 static void hev_scgi_response_output_stream_write_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data)
 {
-	HevSCGIResponse *self = HEV_SCGI_RESPONSE_CAST(user_data);
+	GSimpleAsyncResult *simple = G_SIMPLE_ASYNC_RESULT(user_data);
+	GObject *response = g_async_result_get_source_object(G_ASYNC_RESULT(simple));
+	HevSCGIResponse *self = HEV_SCGI_RESPONSE_CAST(response);
 	HevSCGIResponsePrivate *priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
 	gssize size = 0;
 	GError *error = NULL;
 	gpointer key = NULL, value = NULL;
-	GSimpleAsyncResult *simple = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	/* Unref 'response' get from g_async_result_get_source_object */
+	g_object_unref(response);
 
 	size = g_output_stream_write_finish(G_OUTPUT_STREAM(source_object),
 				res, &error);
 
-	simple = g_object_get_data(G_OBJECT(self), "simple");
 	/* Call callback when connection closed by remote or error */
 	if(0 >= size)
 	{
@@ -374,14 +376,14 @@ static void hev_scgi_response_output_stream_write_async_handler(GObject *source_
 			g_output_stream_write_async(priv->output_stream,
 						priv->header_buffer, strlen(priv->header_buffer), 0, NULL,
 						hev_scgi_response_output_stream_write_async_handler,
-						self);
+						simple);
 		}
 		else
 		{
 			g_output_stream_write_async(priv->output_stream,
 						"\r\n", 2, 0, NULL,
 						hev_scgi_response_output_stream_write_async_handler,
-						self);
+						simple);
 			priv->last_write = TRUE;
 		}
 	}

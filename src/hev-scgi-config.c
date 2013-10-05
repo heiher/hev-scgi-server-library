@@ -8,7 +8,11 @@
  ============================================================================
  */
 
+#include <glib.h>
+
+#ifdef G_OS_UNIX
 #include <gio/gunixsocketaddress.h>
+#endif
 
 #include "hev-scgi-config.h"
 

@@ -1,9 +1,9 @@
 /*
  ============================================================================
  Name        : hev-scgi-response.h
- Author      : Heiher <admin@heiher.info>
- Version     : 0.0.1
- Copyright   : Copyright (C) 2011 everyone.
+ Author      : Heiher <root@heiher.info>
+ Version     : 1.0.0
+ Copyright   : Copyright (C) 2013 everyone.
  Description : 
  ============================================================================
  */
@@ -44,6 +44,7 @@ void _hev_scgi_response_set_output_stream(HevSCGIResponse *self,
 			GOutputStream *output_stream);
 
 GHashTable * hev_scgi_response_get_header_hash_table(HevSCGIResponse *self);
+void hev_scgi_response_set_header_hash_table(HevSCGIResponse *self, GHashTable *hash_table);
 gboolean hev_scgi_response_write_header(HevSCGIResponse *self, GError **error);
 void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 			GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data);

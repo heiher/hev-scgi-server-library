@@ -1,9 +1,9 @@
 /*
  ============================================================================
  Name        : hev-scgi-response.c
- Author      : Heiher <admin@heiher.info>
- Version     : 0.0.1
- Copyright   : Copyright (C) 2011 everyone.
+ Author      : Heiher <root@heiher.info>
+ Version     : 1.0.0
+ Copyright   : Copyright (C) 2013 everyone.
  Description : 
  ============================================================================
  */
@@ -419,5 +419,31 @@ GHashTable * hev_scgi_response_get_header_hash_table(HevSCGIResponse *self)
 	priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
 
 	return priv->header_hash_table;
+}
+
+
+/**
+ * hev_scgi_response_set_header_hash_table
+ * @self: A #HevSCGIResponse
+ * @hash_table: (transfer full) (element-type utf8 utf8): A #GHashTable contains headers.
+ *
+ * Sets the header hash table @self is for.
+ *
+ * Since: 1.0.0
+ */
+void hev_scgi_response_set_header_hash_table(HevSCGIResponse *self, GHashTable *hash_table)
+{
+	HevSCGIResponsePrivate *priv = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	g_return_val_if_fail(HEV_IS_SCGI_RESPONSE(self), NULL);
+	priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
+
+	if (priv->header_hash_table != hash_table) {
+		if(priv->header_hash_table)
+		  g_hash_table_destroy(priv->header_hash_table);
+		priv->header_hash_table = hash_table;
+	}
 }
 

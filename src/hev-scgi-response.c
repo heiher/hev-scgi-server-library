@@ -437,7 +437,7 @@ void hev_scgi_response_set_header_hash_table(HevSCGIResponse *self, GHashTable *
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_return_val_if_fail(HEV_IS_SCGI_RESPONSE(self), NULL);
+	g_return_if_fail(HEV_IS_SCGI_RESPONSE(self));
 	priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
 
 	if (priv->header_hash_table != hash_table) {

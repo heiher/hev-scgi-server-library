@@ -2,18 +2,26 @@
  
 PP=cpp
 CC=cc
+AR=ar
+LD=ld
 GIR_SCANNER=g-ir-scanner
 GIR_COMPILER=g-ir-compiler
 VAPIGEN=vapigen
 PKG_DEPS=glib-2.0 gmodule-2.0 gio-2.0 gio-unix-2.0
-CCFLAGS=-O3 -fPIC -DSTATIC_MODULE `pkg-config --cflags $(PKG_DEPS)`
-LDFLAGS=-shared `pkg-config --libs $(PKG_DEPS)`
+CCFLAGS=-O3 `pkg-config --cflags $(PKG_DEPS)`
+LDFLAGS=
  
 SRCDIR=src
 BINDIR=bin
 BUILDDIR=build
  
-TARGET=$(BINDIR)/libhev-scgi-server.so
+STATIC_TARGET=$(BINDIR)/libhev-scgi-server.a
+SHARED_TARGET=$(BINDIR)/libhev-scgi-server.so
+
+$(STATIC_TARGET): CCFLAGS+=-DSTATIC_MODULE
+$(SHARED_TARGET): CCFLAGS+=-fPIC
+$(SHARED_TARGET): LDFLAGS+=-shared `pkg-config --libs $(PKG_DEPS)`
+
 GIR_FILE=gir/HevSCGI-1.0.gir
 GIR_TYPELIB=gir/HevSCGI-1.0.typelib
 VAPI_FILE=vapi/hev-scgi-1.0.vapi
@@ -27,8 +35,11 @@ CCOBJSFILE=$(BUILDDIR)/ccobjs
 LDOBJS=$(patsubst $(SRCDIR)%.c,$(BUILDDIR)%.o,$(CCOBJS))
  
 DEPEND=$(LDOBJS:.o=.dep)
+
+shared : $(CCOBJSFILE) $(SHARED_TARGET) $(GIR_FILE) $(GIR_TYPELIB) $(VAPI_FILE)
+	@$(RM) $(CCOBJSFILE)
  
-all : $(CCOBJSFILE) $(TARGET) $(GIR_FILE) $(GIR_TYPELIB) $(VAPI_FILE)
+static : $(CCOBJSFILE) $(STATIC_TARGET)
 	@$(RM) $(CCOBJSFILE)
  
 clean : 
@@ -38,7 +49,10 @@ clean :
 $(CCOBJSFILE) : 
 	@echo CCOBJS=`ls $(SRCDIR)/*.c` > $(CCOBJSFILE)
  
-$(TARGET) : $(LDOBJS)
+$(STATIC_TARGET) : $(LDOBJS)
+	@echo -n "Linking $^ to $@ ... " && $(AR) cqs $@ $^ && echo "OK"
+
+$(SHARED_TARGET) : $(LDOBJS)
 	@echo -n "Linking $^ to $@ ... " && $(CC) -o $@ $^ $(LDFLAGS) && echo "OK"
 
 $(GIR_FILE) : $(TARGET) $(GIR_SOURCES)

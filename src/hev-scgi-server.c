@@ -147,7 +147,9 @@ static void hev_scgi_server_constructed(GObject * obj)
 	if(!priv->scgi_task_dispatcher)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	/* Add handler-module */
+	/* Register static handler types at here*/
+
+
 	module_dir_path = hev_scgi_config_get_module_dir_path(
 				HEV_SCGI_CONFIG(priv->scgi_config));
 	if(!module_dir_path)
@@ -156,6 +158,7 @@ static void hev_scgi_server_constructed(GObject * obj)
 		return;
 	}
 
+	/* Add handler-module */
 	module_slist = hev_scgi_config_get_modules(HEV_SCGI_CONFIG(priv->scgi_config));
 	for(module_sl=module_slist; module_sl; module_sl=g_slist_next(module_sl))
 	{
@@ -164,23 +167,35 @@ static void hev_scgi_server_constructed(GObject * obj)
 		GObject *handler = NULL;
 		GKeyFile *config = NULL;
 		gchar *file_name = NULL;
+		gchar *type_name = NULL;
 		gchar *file_path = NULL;
 
 		config = hev_scgi_config_get_module_config(HEV_SCGI_CONFIG(priv->scgi_config),
 					(const gchar *)module_sl->data);
 
 		file_name = g_key_file_get_string(config, "Module", "FileName", NULL);
-		file_path = g_build_path(G_DIR_SEPARATOR_S, module_dir_path, file_name, NULL);
+		type_name = g_key_file_get_string(config, "Module", "TypeName", NULL);
+		if(file_name)
+		{
+			file_path = g_build_path(G_DIR_SEPARATOR_S, module_dir_path, file_name, NULL);
+			handler_module = hev_scgi_handler_module_new(file_path);
+			g_type_module_use(G_TYPE_MODULE(handler_module));
+			priv->module_slist = g_slist_append(priv->module_slist, handler_module);
+			handler_type = hev_scgi_handler_module_get_handler_type(HEV_SCGI_HANDLER_MODULE(handler_module));
+			g_free(file_name);
+			g_free(file_path);
+		}
+		else if (type_name)
+		{
+			handler_type = g_type_from_name (type_name);
+			g_free(type_name);
+		}
 
-		handler_module = hev_scgi_handler_module_new(file_path);
-		g_type_module_use(G_TYPE_MODULE(handler_module));
-		handler_type = hev_scgi_handler_module_get_handler_type(HEV_SCGI_HANDLER_MODULE(handler_module));
-		handler = g_object_new(handler_type, "config", config, NULL);
-		hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher), handler);
-		priv->module_slist = g_slist_append(priv->module_slist, handler_module);
-
-		g_free(file_name);
-		g_free(file_path);
+		if(G_TYPE_INVALID != handler_type)
+		{
+			handler = g_object_new(handler_type, "config", config, NULL);
+			hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher), handler);
+		}
 	}
 
 	g_free(module_dir_path);

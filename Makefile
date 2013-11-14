@@ -6,7 +6,7 @@ GIR_SCANNER=g-ir-scanner
 GIR_COMPILER=g-ir-compiler
 VAPIGEN=vapigen
 PKG_DEPS=glib-2.0 gmodule-2.0 gio-2.0 gio-unix-2.0
-CCFLAGS=-O3 -fPIC `pkg-config --cflags $(PKG_DEPS)`
+CCFLAGS=-O3 -fPIC -DSTATIC_MODULE `pkg-config --cflags $(PKG_DEPS)`
 LDFLAGS=-shared `pkg-config --libs $(PKG_DEPS)`
  
 SRCDIR=src

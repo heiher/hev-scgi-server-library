@@ -102,7 +102,6 @@ GObject * hev_scgi_task_dispatcher_new(void)
 void hev_scgi_task_dispatcher_push(HevSCGITaskDispatcher *self,
 			GObject *scgi_task)
 {
-	HevSCGITaskDispatcherPrivate * priv = HEV_SCGI_TASK_DISPATCHER_GET_PRIVATE(self);
 	GObject *scgi_request = NULL;
 	HevClosure0 *closure = NULL;
 

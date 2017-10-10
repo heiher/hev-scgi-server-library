@@ -219,7 +219,7 @@ gboolean hev_scgi_response_write_header(HevSCGIResponse *self, GError **error)
 
 		if(g_hash_table_iter_next (&priv->header_hash_table_iter,
 						&key, &value)) {
-			len = g_snprintf (buffer, 1024, "%s: %s\r\n", key, value);
+			len = g_snprintf (buffer, 1024, "%s: %s\r\n", (char *) key, (char *) value);
 		} else {
 			len = g_snprintf (buffer, 1024, "\r\n");
 			run = FALSE;
@@ -276,7 +276,7 @@ void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 					&key, &value))
 	{
 		priv->header_buffer = g_strdup_printf("%s: %s\r\n",
-					key, value);
+					(char *) key, (char *) value);
 		g_output_stream_write_async(priv->output_stream,
 					priv->header_buffer, strlen(priv->header_buffer), 0, NULL,
 					hev_scgi_response_output_stream_write_async_handler,
@@ -305,12 +305,9 @@ void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 gboolean hev_scgi_response_write_header_finish(HevSCGIResponse *self, GAsyncResult *res,
 			GError **error)
 {
-	HevSCGIResponsePrivate *priv = NULL;
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	g_return_val_if_fail(HEV_IS_SCGI_RESPONSE(self), FALSE);
-	priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
 
 	g_return_val_if_fail(g_simple_async_result_is_valid(res,
 					G_OBJECT(self), hev_scgi_response_write_header_async),
@@ -372,7 +369,7 @@ static void hev_scgi_response_output_stream_write_async_handler(GObject *source_
 			  g_free(priv->header_buffer);
 
 			priv->header_buffer = g_strdup_printf("%s: %s\r\n",
-						key, value);
+						(char *) key, (char *) value);
 			g_output_stream_write_async(priv->output_stream,
 						priv->header_buffer, strlen(priv->header_buffer), 0, NULL,
 						hev_scgi_response_output_stream_write_async_handler,

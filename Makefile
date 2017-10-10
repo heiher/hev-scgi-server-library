@@ -7,6 +7,7 @@ PP=$(CROSS_PREFIX)cpp
 CC=$(CROSS_PREFIX)gcc
 AR=$(CROSS_PREFIX)ar
 LD=$(CROSS_PREFIX)ld
+STRIP=$(CROSS_PREFIX)strip
 GIR_SCANNER=g-ir-scanner
 GIR_COMPILER=g-ir-compiler
 VAPIGEN=vapigen
@@ -65,6 +66,8 @@ $(STATIC_TARGET) : $(LDOBJS)
 $(SHARED_TARGET) : $(LDOBJS)
 	$(ECHO_PREFIX) $(CC) -o $@ $^ $(LDFLAGS)
 	@echo -e $(LINKMSG)
+	$(ECHO_PREFIX) $(STRIP) $@
+	@echo -e $(STRIPMSG)
 
 $(GIR_FILE) : $(TARGET) $(GIR_SOURCES)
 	$(ECHO_PREFIX) LD_LIBRARY_PATH=./bin \

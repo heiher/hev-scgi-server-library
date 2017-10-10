@@ -52,7 +52,6 @@ static void hev_scgi_connection_manager_constructed(GObject * obj)
 static void hev_scgi_connection_manager_class_init(HevSCGIConnectionManagerClass * klass)
 {
 	GObjectClass * obj_class = G_OBJECT_CLASS(klass);
-	GSocketServiceClass *socket_service_class = G_SOCKET_SERVICE_CLASS(klass);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 

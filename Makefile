@@ -1,4 +1,6 @@
 # Makefile for hev-scgi-server-library
+
+PROJECT=hev-scgi-server-library
  
 CROSS_PREFIX :=
 PP=$(CROSS_PREFIX)cpp

@@ -253,12 +253,9 @@ void _hev_scgi_request_read_header_async(HevSCGIRequest *self,
 gboolean _hev_scgi_request_read_header_finish(HevSCGIRequest *self, GAsyncResult *res,
 			GError **error)
 {
-	HevSCGIRequestPrivate *priv = NULL;
-
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	g_return_val_if_fail(HEV_IS_SCGI_REQUEST(self), FALSE);
-	priv = HEV_SCGI_REQUEST_GET_PRIVATE(self);
 
 	g_return_val_if_fail(g_simple_async_result_is_valid(res,
 					G_OBJECT(self), _hev_scgi_request_read_header_async),

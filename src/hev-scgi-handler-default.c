@@ -148,7 +148,6 @@ static const gchar * hev_scgi_handler_default_get_pattern(HevSCGIHandler *self)
 static void hev_scgi_handler_default_handle(HevSCGIHandler *self, GObject *scgi_task)
 {
 	GObject *scgi_response = NULL;
-	GOutputStream *output_stream = NULL;
 	GHashTable *res_hash_table = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -156,7 +155,6 @@ static void hev_scgi_handler_default_handle(HevSCGIHandler *self, GObject *scgi_
 	g_object_ref(scgi_task);
 
 	scgi_response = hev_scgi_task_get_response(HEV_SCGI_TASK(scgi_task));
-	output_stream = hev_scgi_response_get_output_stream(HEV_SCGI_RESPONSE(scgi_response));
 	res_hash_table = hev_scgi_response_get_header_hash_table(HEV_SCGI_RESPONSE(scgi_response));
 
 	g_hash_table_insert(res_hash_table, g_strdup("Status"), g_strdup("404 Not Found"));

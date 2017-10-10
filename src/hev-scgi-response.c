@@ -253,7 +253,7 @@ void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 			GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data)
 {
 	HevSCGIResponsePrivate *priv = NULL;
-	GSimpleAsyncResult *simple = NULL;
+	GTask *task = NULL;
 	gpointer key = NULL, value = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
@@ -264,10 +264,7 @@ void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 	g_return_if_fail(NULL!=priv->output_stream);
 	g_return_if_fail(HEADER_STATUS_UNWRITE==priv->header_status);
 
-	/* Simple async result */
-	simple = g_simple_async_result_new(G_OBJECT(self),
-				callback, user_data, hev_scgi_response_write_header_async);
-	g_simple_async_result_set_check_cancellable(simple, cancellable);
+	task = g_task_new(self, cancellable, callback, user_data);
 
 	priv->header_status = HEADER_STATUS_WRITING;
 	g_hash_table_iter_init(&priv->header_hash_table_iter,
@@ -280,14 +277,14 @@ void hev_scgi_response_write_header_async(HevSCGIResponse *self,
 		g_output_stream_write_async(priv->output_stream,
 					priv->header_buffer, strlen(priv->header_buffer), 0, NULL,
 					hev_scgi_response_output_stream_write_async_handler,
-					simple);
+					task);
 	}
 	else
 	{
 		g_output_stream_write_async(priv->output_stream,
 					"\r\n", 2, 0, NULL,
 					hev_scgi_response_output_stream_write_async_handler,
-					simple);
+					task);
 		priv->last_write = TRUE;
 	}
 }
@@ -309,22 +306,16 @@ gboolean hev_scgi_response_write_header_finish(HevSCGIResponse *self, GAsyncResu
 
 	g_return_val_if_fail(HEV_IS_SCGI_RESPONSE(self), FALSE);
 
-	g_return_val_if_fail(g_simple_async_result_is_valid(res,
-					G_OBJECT(self), hev_scgi_response_write_header_async),
-				FALSE);
+	g_return_val_if_fail(g_task_is_valid(G_TASK(res), self), FALSE);
 
-	if(g_simple_async_result_propagate_error(G_SIMPLE_ASYNC_RESULT(res),
-					error))
-	  return FALSE;
-
-	return g_simple_async_result_get_op_res_gboolean(G_SIMPLE_ASYNC_RESULT(res));
+	return g_task_propagate_boolean (G_TASK(res), error);
 }
 
 static void hev_scgi_response_output_stream_write_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data)
 {
-	GSimpleAsyncResult *simple = G_SIMPLE_ASYNC_RESULT(user_data);
-	GObject *response = g_async_result_get_source_object(G_ASYNC_RESULT(simple));
+	GTask *task = G_TASK(user_data);
+	GObject *response = g_async_result_get_source_object(G_ASYNC_RESULT(task));
 	HevSCGIResponse *self = HEV_SCGI_RESPONSE_CAST(response);
 	HevSCGIResponsePrivate *priv = HEV_SCGI_RESPONSE_GET_PRIVATE(self);
 	gssize size = 0;
@@ -344,10 +335,8 @@ static void hev_scgi_response_output_stream_write_async_handler(GObject *source_
 	{
 		priv->header_status = HEADER_STATUS_WRITED;
 
-		g_simple_async_result_take_error(simple, error);
-		g_simple_async_result_set_op_res_gboolean(simple, FALSE);
-		g_simple_async_result_complete_in_idle(simple);
-		g_object_unref(simple);
+		g_task_return_error (task, error);
+		g_object_unref(task);
 
 		return;
 	}
@@ -356,9 +345,8 @@ static void hev_scgi_response_output_stream_write_async_handler(GObject *source_
 	{
 		priv->header_status = HEADER_STATUS_WRITED;
 
-		g_simple_async_result_set_op_res_gboolean(simple, TRUE);
-		g_simple_async_result_complete(simple);
-		g_object_unref(simple);
+		g_task_return_boolean(task, TRUE);
+		g_object_unref(task);
 	}
 	else
 	{
@@ -373,14 +361,14 @@ static void hev_scgi_response_output_stream_write_async_handler(GObject *source_
 			g_output_stream_write_async(priv->output_stream,
 						priv->header_buffer, strlen(priv->header_buffer), 0, NULL,
 						hev_scgi_response_output_stream_write_async_handler,
-						simple);
+						task);
 		}
 		else
 		{
 			g_output_stream_write_async(priv->output_stream,
 						"\r\n", 2, 0, NULL,
 						hev_scgi_response_output_stream_write_async_handler,
-						simple);
+						task);
 			priv->last_write = TRUE;
 		}
 	}

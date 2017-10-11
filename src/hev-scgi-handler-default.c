@@ -22,7 +22,7 @@
 
 static void hev_scgi_response_write_header_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data);
-static void hev_scgi_handler_default_output_stream_write_async_handler(GObject *source_object,
+static void hev_scgi_handler_default_output_stream_write_all_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data);
 
 #define HEV_SCGI_HANDLER_DEFAULT_GET_PRIVATE(obj)	(G_TYPE_INSTANCE_GET_PRIVATE((obj), HEV_TYPE_SCGI_HANDLER_DEFAULT, HevSCGIHandlerDefaultPrivate))
@@ -181,18 +181,20 @@ static void hev_scgi_response_write_header_async_handler(GObject *source_object,
 
 	scgi_response = hev_scgi_task_get_response(HEV_SCGI_TASK(scgi_task));
 	output_stream = hev_scgi_response_get_output_stream(HEV_SCGI_RESPONSE(scgi_response));
-	g_output_stream_write_async(output_stream, priv->html->str, priv->html->len, 0, NULL,
-				hev_scgi_handler_default_output_stream_write_async_handler,
+	g_output_stream_write_all_async(output_stream, priv->html->str, priv->html->len, 0, NULL,
+				hev_scgi_handler_default_output_stream_write_all_async_handler,
 				scgi_task);
 }
 
-static void hev_scgi_handler_default_output_stream_write_async_handler(GObject *source_object,
+static void hev_scgi_handler_default_output_stream_write_all_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data)
 {
+	gsize bytes_written;
+
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	g_output_stream_write_finish(G_OUTPUT_STREAM(source_object),
-				res, NULL);
+	g_output_stream_write_all_finish(G_OUTPUT_STREAM(source_object),
+				res, &bytes_written, NULL);
 	g_object_unref(user_data);
 }
 

@@ -19,6 +19,8 @@ static void hev_scgi_request_input_stream_read_async_handler(GObject *source_obj
 static void hev_scgi_request_input_stream_close_async_handler(GObject *source_object,
 			GAsyncResult *res, gpointer user_data);
 static void hev_scgi_request_parse_header(HevSCGIRequest *self);
+static void hev_scgi_request_task_thread_handler(GTask *task, gpointer source_object,
+			gpointer task_data, GCancellable *cancellable);
 
 #define HEV_SCGI_REQUEST_GET_PRIVATE(obj)	(G_TYPE_INSTANCE_GET_PRIVATE((obj), HEV_TYPE_SCGI_REQUEST, HevSCGIRequestPrivate))
 
@@ -328,11 +330,7 @@ static void hev_scgi_request_input_stream_read_async_handler(GObject *source_obj
 	if(priv->header_buffer_fill_size < priv->header_size)
 	  goto again;
 
-	/* Parse header fields */
-	hev_scgi_request_parse_header(self);
-
-	g_task_return_boolean(task, TRUE);
-	g_object_unref(task);
+	g_task_run_in_thread(task, hev_scgi_request_task_thread_handler);
 	return;
 
 invalid:
@@ -382,6 +380,19 @@ static void hev_scgi_request_parse_header(HevSCGIRequest *self)
 
 		fields = value + strlen (value) + 1;
 	}
+}
+
+static void
+hev_scgi_request_task_thread_handler(GTask *task, gpointer source_object,
+			gpointer task_data, GCancellable *cancellable)
+{
+	HevSCGIRequest *self = HEV_SCGI_REQUEST_CAST(source_object);
+
+	/* Parse header fields */
+	hev_scgi_request_parse_header(self);
+
+	g_task_return_boolean(task, TRUE);
+	g_object_unref(task);
 }
 
 /**

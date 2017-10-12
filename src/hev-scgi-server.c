@@ -110,9 +110,6 @@ static void hev_scgi_server_constructed(GObject * obj)
 	HevSCGIServerPrivate * priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
 	GSocketAddress *socket_address = NULL;
 	GError *error = NULL;
-	GObject *handler_default = NULL;
-	gchar *module_dir_path = NULL;
-	GSList *module_slist = NULL, *module_sl = NULL;
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
@@ -146,65 +143,6 @@ static void hev_scgi_server_constructed(GObject * obj)
 	priv->scgi_task_dispatcher = hev_scgi_task_dispatcher_new();
 	if(!priv->scgi_task_dispatcher)
 	  g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-
-	/* Register static handler types at here*/
-
-
-	module_dir_path = hev_scgi_config_get_module_dir_path(
-				HEV_SCGI_CONFIG(priv->scgi_config));
-	if(!module_dir_path)
-	{
-		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
-		return;
-	}
-
-	/* Add handler-module */
-	module_slist = hev_scgi_config_get_modules(HEV_SCGI_CONFIG(priv->scgi_config));
-	for(module_sl=module_slist; module_sl; module_sl=g_slist_next(module_sl))
-	{
-		GObject *handler_module = NULL;
-		GType handler_type = G_TYPE_INVALID;
-		GObject *handler = NULL;
-		GKeyFile *config = NULL;
-		gchar *file_name = NULL;
-		gchar *type_name = NULL;
-		gchar *file_path = NULL;
-
-		config = hev_scgi_config_get_module_config(HEV_SCGI_CONFIG(priv->scgi_config),
-					(const gchar *)module_sl->data);
-
-		file_name = g_key_file_get_string(config, "Module", "FileName", NULL);
-		type_name = g_key_file_get_string(config, "Module", "TypeName", NULL);
-		if(file_name)
-		{
-			file_path = g_build_path(G_DIR_SEPARATOR_S, module_dir_path, file_name, NULL);
-			handler_module = hev_scgi_handler_module_new(file_path);
-			g_type_module_use(G_TYPE_MODULE(handler_module));
-			priv->module_slist = g_slist_append(priv->module_slist, handler_module);
-			handler_type = hev_scgi_handler_module_get_handler_type(HEV_SCGI_HANDLER_MODULE(handler_module));
-			g_free(file_name);
-			g_free(file_path);
-		}
-		else if (type_name)
-		{
-			handler_type = g_type_from_name (type_name);
-			g_free(type_name);
-		}
-
-		if(G_TYPE_INVALID != handler_type)
-		{
-			handler = g_object_new(handler_type, "config", config, NULL);
-			hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher), handler);
-		}
-	}
-
-	g_free(module_dir_path);
-	g_slist_free_full(module_slist, g_free);
-
-	/* Add handler-default */
-	handler_default = hev_scgi_handler_default_new();
-	hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),
-				handler_default);
 }
 
 static void hev_scgi_server_set_property(GObject *obj,
@@ -275,12 +213,30 @@ static void hev_scgi_server_init(HevSCGIServer * self)
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 }
 
+/**
+ * hev_scgi_server_new
+ * @conf_dir: Config directory path
+ *
+ * Creates a server.
+ *
+ * Returns: (transfer full)(type HevSCGIServer): A #HevSCGIServer.
+ *
+ * Since: 0.0.1
+ */
 GObject * hev_scgi_server_new(const gchar *conf_dir)
 {
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 	return g_object_new(HEV_TYPE_SCGI_SERVER, "conf-dir", conf_dir, NULL);
 }
 
+/**
+ * hev_scgi_server_start
+ * @self: A #HevSCGIServer
+ *
+ * Start the server.
+ *
+ * Since: 0.0.1
+ */
 void hev_scgi_server_start(HevSCGIServer *self)
 {
 	HevSCGIServerPrivate * priv = NULL;
@@ -293,6 +249,14 @@ void hev_scgi_server_start(HevSCGIServer *self)
 	g_socket_service_start(G_SOCKET_SERVICE(priv->scgi_connection_manager));
 }
 
+/**
+ * hev_scgi_server_stop
+ * @self: A #HevSCGIServer
+ *
+ * Stop the server.
+ *
+ * Since: 0.0.1
+ */
 void hev_scgi_server_stop(HevSCGIServer *self)
 {
 	HevSCGIServerPrivate * priv = NULL;
@@ -303,6 +267,114 @@ void hev_scgi_server_stop(HevSCGIServer *self)
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
 	g_socket_service_stop(G_SOCKET_SERVICE(priv->scgi_connection_manager));
+}
+
+/**
+ * hev_scgi_server_load_extern_handlers
+ * @self: A #HevSCGIServer
+ *
+ * Load external handlers into server from modules confifg file.
+ *
+ * Since: 1.0.1
+ */
+void hev_scgi_server_load_extern_handlers(HevSCGIServer *self)
+{
+	HevSCGIServerPrivate *priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
+	gchar *module_dir_path = NULL;
+	GSList *module_slist = NULL, *module_sl = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	module_dir_path = hev_scgi_config_get_module_dir_path(
+				HEV_SCGI_CONFIG(priv->scgi_config));
+	if(!module_dir_path)
+	{
+		g_critical("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+		return;
+	}
+
+	/* Add handler-module */
+	module_slist = hev_scgi_config_get_modules(HEV_SCGI_CONFIG(priv->scgi_config));
+	for(module_sl=module_slist; module_sl; module_sl=g_slist_next(module_sl))
+	{
+		GObject *handler_module = NULL;
+		GType handler_type = G_TYPE_INVALID;
+		GObject *handler = NULL;
+		GKeyFile *config = NULL;
+		gchar *file_name = NULL;
+		gchar *type_name = NULL;
+		gchar *file_path = NULL;
+
+		config = hev_scgi_config_get_module_config(HEV_SCGI_CONFIG(priv->scgi_config),
+					(const gchar *)module_sl->data);
+
+		file_name = g_key_file_get_string(config, "Module", "FileName", NULL);
+		type_name = g_key_file_get_string(config, "Module", "TypeName", NULL);
+		if(file_name)
+		{
+			file_path = g_build_path(G_DIR_SEPARATOR_S, module_dir_path, file_name, NULL);
+			handler_module = hev_scgi_handler_module_new(file_path);
+			g_type_module_use(G_TYPE_MODULE(handler_module));
+			priv->module_slist = g_slist_append(priv->module_slist, handler_module);
+			handler_type = hev_scgi_handler_module_get_handler_type(HEV_SCGI_HANDLER_MODULE(handler_module));
+			g_free(file_name);
+			g_free(file_path);
+		}
+		else if (type_name)
+		{
+			handler_type = g_type_from_name (type_name);
+			g_free(type_name);
+		}
+
+		if(G_TYPE_INVALID != handler_type)
+		{
+			handler = g_object_new(handler_type, "config", config, NULL);
+			hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher), handler);
+		}
+	}
+
+	g_free(module_dir_path);
+	g_slist_free_full(module_slist, g_free);
+}
+
+/**
+ * hev_scgi_server_load_default_handler
+ * @self: A #HevSCGIServer
+ *
+ * Load default handler into server.
+ *
+ * Since: 1.0.1
+ */
+void hev_scgi_server_load_default_handler(HevSCGIServer *self)
+{
+	HevSCGIServerPrivate *priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
+	GObject *handler_default = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	/* Add handler-default */
+	handler_default = hev_scgi_handler_default_new();
+	hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),
+				handler_default);
+}
+
+/**
+ * hev_scgi_server_add_handler
+ * @self: A #HevSCGIServer
+ * @handler: (transfer full) A #HevSCGIHandler
+ *
+ * Add handler into server.
+ *
+ * Since: 1.0.1
+ */
+void hev_scgi_server_add_handler(HevSCGIServer *self, GObject *handler)
+{
+	HevSCGIServerPrivate *priv = HEV_SCGI_SERVER_GET_PRIVATE(self);
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	hev_scgi_task_dispatcher_add_handler(HEV_SCGI_TASK_DISPATCHER(priv->scgi_task_dispatcher),
+				handler);
 }
 
 static gboolean scgi_connection_manager_incoming_handler(GSocketService *service,

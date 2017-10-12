@@ -39,8 +39,14 @@ struct _HevSCGIServerClass
 GType hev_scgi_server_get_type(void);
 
 GObject * hev_scgi_server_new(const gchar *conf_dir);
+
 void hev_scgi_server_start(HevSCGIServer *self);
 void hev_scgi_server_stop(HevSCGIServer *self);
+
+void hev_scgi_server_load_extern_handlers(HevSCGIServer *self);
+void hev_scgi_server_load_default_handler(HevSCGIServer *self);
+
+void hev_scgi_server_add_handler(HevSCGIServer *self, GObject *handler);
 
 G_END_DECLS
 

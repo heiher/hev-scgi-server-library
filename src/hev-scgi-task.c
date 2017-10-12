@@ -29,27 +29,10 @@ G_DEFINE_TYPE(HevSCGITask, hev_scgi_task, G_TYPE_OBJECT);
 static void hev_scgi_task_dispose(GObject * obj)
 {
 	HevSCGITask * self = HEV_SCGI_TASK_CAST(obj);
-	HevSCGITaskPrivate * priv = HEV_SCGI_TASK_GET_PRIVATE(self);
 
 	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
 
-	if(priv->scgi_request)
-	{
-		g_object_unref(priv->scgi_request);
-		priv->scgi_request = NULL;
-	}
-
-	if(priv->scgi_response)
-	{
-		g_object_unref(priv->scgi_response);
-		priv->scgi_response = NULL;
-	}
-
-	if(priv->connection)
-	{
-		g_object_unref(priv->connection);
-		priv->connection = NULL;
-	}
+	hev_scgi_task_finish(self);
 
 	G_OBJECT_CLASS(hev_scgi_task_parent_class)->dispose(obj);
 }
@@ -252,5 +235,41 @@ GObject * hev_scgi_task_get_handler(HevSCGITask *self)
 	priv = HEV_SCGI_TASK_GET_PRIVATE(self);
 
 	return priv->handler;
+}
+
+/**
+ * hev_scgi_task_finish
+ * @self: A #HevSCGITask
+ *
+ * Mark the task is finished.
+ *
+ * Since: 1.0.2
+ */
+void hev_scgi_task_finish(HevSCGITask *self)
+{
+	HevSCGITaskPrivate *priv = NULL;
+
+	g_debug("%s:%d[%s]", __FILE__, __LINE__, __FUNCTION__);
+
+	g_return_if_fail(HEV_IS_SCGI_TASK(self));
+	priv = HEV_SCGI_TASK_GET_PRIVATE(self);
+
+	if(priv->scgi_request)
+	{
+		g_object_unref(priv->scgi_request);
+		priv->scgi_request = NULL;
+	}
+
+	if(priv->scgi_response)
+	{
+		g_object_unref(priv->scgi_response);
+		priv->scgi_response = NULL;
+	}
+
+	if(priv->connection)
+	{
+		g_object_unref(priv->connection);
+		priv->connection = NULL;
+	}
 }
 
